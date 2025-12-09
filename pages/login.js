@@ -29,7 +29,7 @@ export default function Login() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: form.email,
-          pass: form.senha, // backend espera `pass`
+          pass: form.senha,
         }),
       });
 
@@ -37,7 +37,9 @@ export default function Login() {
 
       if (!data.ok) {
         if (data.requiresEmailVerification) {
-          alert("Confirme seu e-mail antes de fazer login. Você pode reenviar o e-mail de verificação abaixo.");
+          alert(
+            "Confirme seu e-mail antes de fazer login. Você pode reenviar o e-mail de verificação abaixo."
+          );
           setLoading(false);
           return;
         }
@@ -47,12 +49,12 @@ export default function Login() {
         return;
       }
 
-      // sucesso: salvar sessão e ir para painel
       localStorage.setItem("token", data.token);
       localStorage.setItem("userId", data.user.id);
       localStorage.setItem("cpf", data.user.cpf || "");
       localStorage.setItem("consultorId", data.user.consultorId || "");
       setLoading(false);
+
       router.push("/painel");
     } catch (err) {
       console.error("Erro no login:", err);
@@ -61,6 +63,7 @@ export default function Login() {
     }
   }
 
+  // 🔥 NOVA FUNÇÃO: AGORA ENVIA email + userId (OBRIGATÓRIO)
   async function resendVerification() {
     if (!form.email) {
       alert("Digite seu e-mail no campo acima para reenviar o link.");
@@ -69,19 +72,38 @@ export default function Login() {
 
     try {
       setLoading(true);
-      const res = await fetch("/api/auth/resendVerificationEmail", {
+
+      // 1️⃣ Buscar userId no backend
+      const findUser = await fetch("/api/auth/sync-consultor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email }),
       });
 
-      const data = await res.json();
+      const userData = await findUser.json();
+
+      if (!userData.ok || !userData.userId) {
+        alert(userData.error || "Usuário não encontrado.");
+        setLoading(false);
+        return;
+      }
+
+      const userId = userData.userId;
+
+      // 2️⃣ Enviar reenvio com email + userId
+      const resend = await fetch("/api/auth/resendVerificationEmail", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, userId }),
+      });
+
+      const data = await resend.json();
       setLoading(false);
 
       if (data.ok) {
         alert("E-mail de verificação reenviado. Verifique sua caixa e spam.");
       } else {
-        alert(data.error || "Não foi possível reenviar. Verifique o e-mail e tente novamente.");
+        alert(data.error || "Não foi possível reenviar. Tente novamente.");
       }
     } catch (err) {
       console.error("Erro reenviando email:", err);
@@ -126,7 +148,6 @@ export default function Login() {
           Entrar
         </h1>
 
-        {/* Email */}
         <label style={labelStyle}>Email</label>
         <input
           name="email"
@@ -136,7 +157,6 @@ export default function Login() {
           style={inputStyle}
         />
 
-        {/* Senha com OLHINHO */}
         <label style={labelStyle}>Senha</label>
         <div style={{ position: "relative" }}>
           <input
@@ -147,31 +167,28 @@ export default function Login() {
             placeholder="Sua senha"
             style={{ ...inputStyle, paddingRight: 44 }}
           />
-
           <span
             onClick={() => setMostrarSenha(!mostrarSenha)}
             style={eyeIconStyle}
-            role="button"
-            aria-label={mostrarSenha ? "Ocultar senha" : "Mostrar senha"}
           >
             {mostrarSenha ? "🙈" : "👁️"}
           </span>
         </div>
 
-        {/* Botão principal */}
         <button onClick={submit} style={buttonPrimary} disabled={loading}>
           {loading ? "Aguarde..." : "Entrar"}
         </button>
 
-        {/* Reenviar verificação */}
-        <button onClick={resendVerification} style={buttonSecondary} disabled={loading}>
+        <button
+          onClick={resendVerification}
+          style={buttonSecondary}
+          disabled={loading}
+        >
           Reenviar e-mail de verificação
         </button>
 
-        {/* Botão secundário: criar conta */}
         <button
           onClick={() => {
-            // limpar tokens vagos antes de criar conta (evita loops)
             localStorage.removeItem("token");
             localStorage.removeItem("userId");
             router.push("/cadastro");
@@ -186,7 +203,6 @@ export default function Login() {
   );
 }
 
-/* estilos */
 const eyeIconStyle = {
   position: "absolute",
   right: 10,
