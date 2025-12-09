@@ -46,7 +46,7 @@ export default async function handler(req, res) {
 
     console.log("📝 Enviando email...");
     const info = await transporter.sendMail({
-      from: "nao-responda@bemconcreto.com.br",
+      from: `"Bem Concreto" <${process.env.SMTP_USER}>`,
       to: email,
       subject: "Confirme seu e-mail",
       html: `
