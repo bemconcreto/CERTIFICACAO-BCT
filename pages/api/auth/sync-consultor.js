@@ -1,32 +1,34 @@
 import pool from "../../../lib/db";
 
 export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ ok: false, error: "Método não permitido" });
+  }
+
   try {
-    const { userId, cpf, email, name, consultorId } = req.body;
+    const { email } = req.body;
 
-    // Verifica se já existe
-    const exists = await pool.query(
-      "SELECT id FROM users WHERE cpf = $1",
-      [cpf]
-    );
-
-    if (exists.rows.length > 0) {
-      return res.json({ ok: true });
+    if (!email) {
+      return res.json({ ok: false, error: "Email ausente" });
     }
 
-    // Cria novo usuário automaticamente
-    await pool.query(
-      `
-      INSERT INTO users (name, cpf, email, consultor_id)
-      VALUES ($1, $2, $3, $4)
-      `,
-      [name, cpf, email, consultorId || null]
+    // Apenas busca o usuário – sem criar automaticamente!
+    const result = await pool.query(
+      `SELECT id, email FROM users WHERE email = $1 LIMIT 1`,
+      [email]
     );
 
-    return res.json({ ok: true });
+    if (result.rows.length === 0) {
+      return res.json({ ok: false, error: "Usuário não encontrado." });
+    }
+
+    return res.json({
+      ok: true,
+      userId: result.rows[0].id,
+    });
 
   } catch (err) {
-    console.log("Erro sync consultor:", err);
-    return res.json({ ok: false });
+    console.error("Erro sync consultor:", err);
+    return res.json({ ok: false, error: "Erro interno." });
   }
 }
