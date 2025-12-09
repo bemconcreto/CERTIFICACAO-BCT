@@ -1,0 +1,27 @@
+{
+  "name": "certificacao-bct",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "start": "next start",
+    "build": "next build"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "crypto-js": "^4.2.0",
+    "date-fns": "^4.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "next": "14.1.0",
+    "nodemailer": "^7.0.11",
+    "pdfkit": "^0.17.2",
+    "pg": "^8.11.1",
+    "puppeteer": "^24.32.1",
+    "qrcode": "^1.5.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "uuid": "^13.0.0"
+  }
+}
