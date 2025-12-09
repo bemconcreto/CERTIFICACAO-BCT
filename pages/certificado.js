@@ -225,69 +225,16 @@ export default function Certificado() {
 
         {/* 🔥 BOTÃO DE BAIXAR PDF OFICIAL */}
 <button
-  onClick={async () => {
-    try {
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        alert("Usuário não encontrado.");
-        return;
-      }
-
-      const certificadoHtml = document.getElementById("certificado").outerHTML;
-
-      // HTML COMPLETO para o Puppeteer
-      const html = `
-        <html>
-          <head>
-            <meta charset="UTF-8" />
-            <style>
-              body {
-                font-family: Arial, sans-serif;
-                background: white;
-                padding: 0;
-                margin: 0;
-              }
-              #certificado {
-                max-width: 900px;
-                margin: 40px auto;
-                border: 3px solid #624b43;
-                padding: 60px 80px;
-                border-radius: 20px;
-              }
-              img {
-                max-width: 100%;
-              }
-            </style>
-          </head>
-          <body>
-            ${certificadoHtml}
-          </body>
-        </html>
-      `;
-
-      const res = await fetch("/api/certificado/generate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, html }),
-      });
-
-      if (!res.ok) {
-        alert("Erro ao gerar PDF.");
-        return;
-      }
-
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "certificado.pdf";
-      a.click();
-      URL.revokeObjectURL(url);
-
-    } catch (err) {
-      console.error(err);
-      alert("Erro ao gerar PDF.");
+  onClick={() => {
+    if (navigator.share) {
+      navigator.share({
+        title: "Meu Certificado Bem Concreto",
+        text: "Acabei de me certificar como Consultor BCT! 🚀",
+        url: "https://certificacao.bemconcreto.com",
+      })
+      .catch(() => {});
+    } else {
+      alert("Função de compartilhamento disponível em breve!");
     }
   }}
   style={{
@@ -300,7 +247,7 @@ export default function Certificado() {
     fontSize: 16,
   }}
 >
-  Baixar PDF Oficial
+  Compartilhar Certificado
 </button>
 
         <button
