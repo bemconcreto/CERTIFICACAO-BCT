@@ -57,11 +57,11 @@ export default async function handler(req, res) {
       to: email,
       subject: "Confirme seu e-mail ✔",
       html: `
-        <h2>Seu Bem Mais Concreto...!</h2>
+        <h2>Seu Bem Mais Concreto!</h2>
         <p>Para concluir seu cadastro, confirme seu e-mail clicando no link abaixo:</p>
         <p><a href="${verifyUrl}">Confirmar e-mail</a></p>
         <br/>
-        <p>Se você não criou uma conta, ignore este e-mail.</p>
+
       `,
       envelope: {
         from: "nao-responda@bemconcreto.com.br", // CORRETO para Hostinger
