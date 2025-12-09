@@ -34,9 +34,9 @@ export default async function handler(req, res) {
       from: `"Bem Concreto" <${process.env.SMTP_USER}>`,
       to: email,
       subject: "Confirme seu e-mail ✔",
-      html: `<h2>Confirme seu e-mail</h2>
-             <p>Clique no link:</p>
-             <a href="${verifyUrl}">${verifyUrl}</a>`,
+      html: `<h2>Seu Bem Mais Concreto...!</h2>
+             <p>Para concluir seu cadastro, confirme seu e-mail clicando no link abaixo:</p>
+             <p><a href="${verifyUrl}">Confirmar e-mail</a></p>`,
       envelope: {
         from: process.env.SMTP_USER,
         to: email

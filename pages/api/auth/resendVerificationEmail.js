@@ -50,7 +50,7 @@ export default async function handler(req, res) {
       to: email,
       subject: "Confirme seu e-mail",
       html: `
-        <h2>Bem-vindo(a)!</h2>
+        <h2>Seu Bem Mais Concreto...!</h2>
         <p>Para concluir seu cadastro, confirme seu e-mail clicando no link abaixo:</p>
         <p><a href="${verifyUrl}">Confirmar e-mail</a></p>
       `,
