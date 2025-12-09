@@ -225,13 +225,46 @@ export default function Certificado() {
 
         {/* 🔥 BOTÃO DE BAIXAR PDF OFICIAL */}
 <button
-  onClick={() => {
+  onClick={async () => {
     const userId = localStorage.getItem("userId");
     if (!userId) {
       alert("Usuário não encontrado.");
       return;
     }
-    window.open(`/api/certificado/generate?id=${userId}`, "_blank");
+
+    // Captura o HTML do certificado
+    const certificadoHtml = document.getElementById("certificado").outerHTML;
+
+    try {
+      const res = await fetch("/api/certificado/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          html: certificadoHtml
+        })
+      });
+
+      if (!res.ok) {
+        alert("Erro ao gerar PDF");
+        return;
+      }
+
+      // Recebe o PDF como blob
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      // Força download
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "Certificado-BemConcreto.pdf";
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+    } catch (e) {
+      console.error("Erro PDF:", e);
+      alert("Erro ao gerar o PDF.");
+    }
   }}
   style={{
     padding: "12px 20px",
