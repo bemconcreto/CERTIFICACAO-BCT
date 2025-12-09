@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import * as htmlToImage from "html-to-image";
 
 export default function Certificado() {
   const router = useRouter();
@@ -60,6 +61,44 @@ export default function Certificado() {
         </button>
       </div>
     );
+  }
+
+  // ----------------------------------------
+  // FUNÇÃO PARA GERAR IMAGEM E COMPARTILHAR
+  // ----------------------------------------
+  async function gerarImagemECompartilhar() {
+    try {
+      const node = document.getElementById("certificado");
+
+      // 🔥 Gera PNG do certificado
+      const dataUrl = await htmlToImage.toPng(node, {
+        quality: 1,
+        pixelRatio: 2, // imagem mais nítida
+      });
+
+      // Baixar automaticamente
+      const link = document.createElement("a");
+      link.download = "certificado-bct.png";
+      link.href = dataUrl;
+      link.click();
+
+      // Compartilhamento nativo
+      if (navigator.share) {
+        const blob = await (await fetch(dataUrl)).blob();
+        const file = new File([blob], "certificado.png", { type: "image/png" });
+
+        await navigator.share({
+          title: "Meu Certificado BCT",
+          text: "Concluí a Certificação de Consultor BCT!",
+          files: [file],
+        });
+      } else {
+        alert("A imagem foi baixada! Agora você pode compartilhar manualmente.");
+      }
+    } catch (err) {
+      console.error("Erro ao gerar imagem:", err);
+      alert("Erro ao gerar o certificado.");
+    }
   }
 
   return (
@@ -223,32 +262,21 @@ export default function Certificado() {
 
         <hr style={{ margin: "50px 0", borderColor: "#ccc" }} />
 
-        {/* 🔥 BOTÃO DE BAIXAR PDF OFICIAL */}
-<button
-  onClick={() => {
-    if (navigator.share) {
-      navigator.share({
-        title: "Meu Certificado Bem Concreto",
-        text: "Acabei de me certificar como Consultor BCT! 🚀",
-        url: "https://certificacao.bemconcreto.com",
-      })
-      .catch(() => {});
-    } else {
-      alert("Função de compartilhamento disponível em breve!");
-    }
-  }}
-  style={{
-    padding: "12px 20px",
-    background: "#101820",
-    color: "white",
-    borderRadius: "10px",
-    border: "none",
-    cursor: "pointer",
-    fontSize: 16,
-  }}
->
-  Compartilhar Certificado
-</button>
+        {/* 🔥 BOTÃO DE COMPARTILHAR */}
+        <button
+          onClick={gerarImagemECompartilhar}
+          style={{
+            padding: "12px 20px",
+            background: "#101820",
+            color: "white",
+            borderRadius: "10px",
+            border: "none",
+            cursor: "pointer",
+            fontSize: 16,
+          }}
+        >
+          Compartilhar Certificado
+        </button>
 
         <button
           onClick={() => router.push("/painel")}
