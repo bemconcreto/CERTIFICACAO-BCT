@@ -1,46 +1,39 @@
-import pool from "../../../lib/db";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
 
 export default async function handler(req, res) {
-  if (req.method !== "POST")
-    return res.status(405).json({ error: "Método não permitido" });
-
-  console.log("🔄 Reenvio solicitado");
+  if (req.method !== "POST") {
+    return res.status(405).json({ ok: false, error: "Método não permitido" });
+  }
 
   try {
-    const { email } = req.body;
+    console.log("🔄 Reenvio solicitado");
+
+    const { email, userId } = req.body;
 
     console.log("📩 Email recebido:", email);
 
-    if (!email) {
-      return res.json({ ok: false, error: "Email obrigatório." });
+    if (!email || !userId) {
+      return res.status(400).json({ ok: false, error: "Dados incompletos." });
     }
 
-    const result = await pool.query(
-      "SELECT id FROM users WHERE email = $1 LIMIT 1",
-      [email]
+    // 🔐 Criar novo token
+    const token = jwt.sign(
+      { userId },
+      process.env.JWT_SECRET,
+      { expiresIn: "24h" }
     );
 
-    if (result.rows.length === 0) {
-      console.log("❌ Usuário não encontrado");
-      return res.json({ ok: false, error: "Usuário não encontrado." });
-    }
+    const verifyUrl =
+      `${process.env.NEXT_PUBLIC_BASE_URL}/verificar-email?token=${token}`;
 
-    const userId = result.rows[0].id;
-    console.log("👤 userId encontrado:", userId);
-
-    const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
-
-    const verifyUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/verificar-email?token=${token}`;
     console.log("🔗 verifyUrl:", verifyUrl);
 
+    // 💌 Configurar SMTP
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT),
-      secure: true,
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
@@ -48,21 +41,18 @@ export default async function handler(req, res) {
     });
 
     console.log("🔍 Testando conexão com SMTP...");
+    await transporter.verify();
+    console.log("✔ SMTP OK");
 
-    await transporter.verify()
-      .then(() => console.log("✔ SMTP OK"))
-      .catch(err => console.log("❌ SMTP ERROR:", err));
-
-    console.log("📨 Enviando email...");
-
+    console.log("📝 Enviando email...");
     const info = await transporter.sendMail({
-      from: `"Bem Concreto" <${process.env.SMTP_USER}>`,
+      from: "nao-responda@bemconcreto.com.br",
       to: email,
-      subject: "Confirme seu e-mail ✔",
+      subject: "Confirme seu e-mail",
       html: `
-        <h2>Confirme seu e-mail</h2>
-        <p>Clique no link abaixo:</p>
-        <a href="${verifyUrl}">${verifyUrl}</a>
+        <h2>Bem-vindo(a)!</h2>
+        <p>Para concluir seu cadastro, confirme seu e-mail clicando no link abaixo:</p>
+        <p><a href="${verifyUrl}">Confirmar e-mail</a></p>
       `,
     });
 
@@ -71,7 +61,7 @@ export default async function handler(req, res) {
     return res.json({ ok: true });
 
   } catch (err) {
-    console.log("💥 ERRO AO ENVIAR EMAIL:", err);
-    return res.json({ ok: false, error: "Falha ao enviar e-mail." });
+    console.error("❌ Erro no reenvio:", err);
+    return res.json({ ok: false, error: "Erro ao reenviar email." });
   }
 }
