@@ -21,18 +21,26 @@ export default function Cadastro() {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmarSenha, setMostrarConfirmarSenha] = useState(false);
 
+  // 🔥 loading para o botão
+  const [loading, setLoading] = useState(false);
+
   function handle(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
   async function submit() {
+    if (loading) return;
+    setLoading(true);
+
     if (!validarCPF(form.cpf)) {
       alert("CPF inválido!");
+      setLoading(false);
       return;
     }
 
     if (form.senha !== form.confirmarSenha) {
       alert("As senhas não coincidem!");
+      setLoading(false);
       return;
     }
 
@@ -46,6 +54,7 @@ export default function Cadastro() {
 
     if (!data.ok) {
       alert(data.error);
+      setLoading(false);
       return;
     }
 
@@ -60,6 +69,7 @@ export default function Cadastro() {
 
     alert("Conta criada! Confirme seu e-mail para continuar.");
     router.push("/login");
+    setLoading(false);
   }
 
   return (
@@ -144,18 +154,28 @@ export default function Cadastro() {
             style={{ ...inputStyle, paddingRight: 40 }}
           />
           <span
-            onClick={() =>
-              setMostrarConfirmarSenha(!mostrarConfirmarSenha)
-            }
+            onClick={() => setMostrarConfirmarSenha(!mostrarConfirmarSenha)}
             style={eyeIconStyle}
           >
             {mostrarConfirmarSenha ? "🙈" : "👁️"}
           </span>
         </div>
 
-        {/* Botões */}
-        <button onClick={submit} style={buttonPrimary}>Cadastrar</button>
+        {/* Botão CADASTRAR com loading */}
+        <button
+          onClick={submit}
+          disabled={loading}
+          style={{
+            ...buttonPrimary,
+            background: loading ? "#777" : "#101820",
+            cursor: loading ? "not-allowed" : "pointer",
+            opacity: loading ? 0.7 : 1,
+          }}
+        >
+          {loading ? "Aguarde..." : "Cadastrar"}
+        </button>
 
+        {/* Já tenho conta */}
         <button
           onClick={() => router.push("/login")}
           style={buttonSecondary}
@@ -167,6 +187,7 @@ export default function Cadastro() {
   );
 }
 
+/* Estilos */
 const eyeIconStyle = {
   position: "absolute",
   right: 10,
