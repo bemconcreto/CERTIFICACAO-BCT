@@ -3,6 +3,10 @@ import puppeteer from "puppeteer-core";
 import pool from "../../../lib/db";
 
 export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).send("Método não permitido");
+  }
+
   try {
     const { userId, html } = req.body;
 
@@ -10,13 +14,12 @@ export default async function handler(req, res) {
       return res.status(400).send("Dados incompletos");
     }
 
-    // Salva certificado no banco
+    // Atualiza certificado no banco
     await pool.query(
       "UPDATE users SET is_certified = TRUE WHERE id = $1",
       [userId]
     );
 
-    // 💡 Configura chrome serverless
     const executablePath = await chromium.executablePath();
 
     const browser = await puppeteer.launch({
@@ -30,7 +33,7 @@ export default async function handler(req, res) {
 
     await page.setContent(html, { waitUntil: "networkidle0" });
 
-    const pdfBuffer = await page.pdf({
+    const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
     });
@@ -42,7 +45,7 @@ export default async function handler(req, res) {
       "Content-Disposition",
       "attachment; filename=certificado.pdf"
     );
-    return res.send(pdfBuffer);
+    return res.send(pdf);
 
   } catch (err) {
     console.error("❌ ERRO AO GERAR PDF:", err);
