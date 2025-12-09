@@ -233,8 +233,37 @@ export default function Certificado() {
         return;
       }
 
-      // Coletar o HTML do certificado
-      const html = document.getElementById("certificado").outerHTML;
+      const certificadoHtml = document.getElementById("certificado").outerHTML;
+
+      // HTML COMPLETO para o Puppeteer
+      const html = `
+        <html>
+          <head>
+            <meta charset="UTF-8" />
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                background: white;
+                padding: 0;
+                margin: 0;
+              }
+              #certificado {
+                max-width: 900px;
+                margin: 40px auto;
+                border: 3px solid #624b43;
+                padding: 60px 80px;
+                border-radius: 20px;
+              }
+              img {
+                max-width: 100%;
+              }
+            </style>
+          </head>
+          <body>
+            ${certificadoHtml}
+          </body>
+        </html>
+      `;
 
       const res = await fetch("/api/certificado/generate", {
         method: "POST",
@@ -243,24 +272,21 @@ export default function Certificado() {
       });
 
       if (!res.ok) {
-        const msg = await res.text();
-        alert("Erro ao gerar PDF: " + msg);
+        alert("Erro ao gerar PDF.");
         return;
       }
 
-      // Receber o PDF como Blob
       const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
+      const url = URL.createObjectURL(blob);
 
-      // Abrir o PDF numa nova aba
       const a = document.createElement("a");
       a.href = url;
       a.download = "certificado.pdf";
       a.click();
+      URL.revokeObjectURL(url);
 
-      window.URL.revokeObjectURL(url);
     } catch (err) {
-      console.error("Erro no botão PDF:", err);
+      console.error(err);
       alert("Erro ao gerar PDF.");
     }
   }}
