@@ -226,25 +226,43 @@ export default function Certificado() {
         {/* 🔥 BOTÃO DE BAIXAR PDF OFICIAL */}
 <button
   onClick={async () => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) return alert("Usuário não encontrado.");
+    try {
+      const userId = localStorage.getItem("userId");
+      if (!userId) {
+        alert("Usuário não encontrado.");
+        return;
+      }
 
-    const html = document.getElementById("certificado").outerHTML;
+      // Coletar o HTML do certificado
+      const html = document.getElementById("certificado").outerHTML;
 
-    const res = await fetch("/api/certificado/generate", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, html }),
-    });
+      const res = await fetch("/api/certificado/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, html }),
+      });
 
-    if (!res.ok) {
-      alert("Erro ao gerar PDF");
-      return;
+      if (!res.ok) {
+        const msg = await res.text();
+        alert("Erro ao gerar PDF: " + msg);
+        return;
+      }
+
+      // Receber o PDF como Blob
+      const blob = await res.blob();
+      const url = window.URL.createObjectURL(blob);
+
+      // Abrir o PDF numa nova aba
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "certificado.pdf";
+      a.click();
+
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Erro no botão PDF:", err);
+      alert("Erro ao gerar PDF.");
     }
-
-    const blob = await res.blob();
-    const url = window.URL.createObjectURL(blob);
-    window.open(url, "_blank");
   }}
   style={{
     padding: "12px 20px",
