@@ -64,37 +64,29 @@ export default function Certificado() {
   }
 
   // ----------------------------------------
-  // FUNÇÃO PARA GERAR IMAGEM E COMPARTILHAR
+  // GERAR IMAGEM PARA COMPARTILHAR
+  // (Compatível com iPhone | Baixa PNG)
   // ----------------------------------------
   async function gerarImagemECompartilhar() {
     try {
       const node = document.getElementById("certificado");
 
-      // 🔥 Gera PNG do certificado
+      // Gera PNG em alta qualidade
       const dataUrl = await htmlToImage.toPng(node, {
         quality: 1,
-        pixelRatio: 2, // imagem mais nítida
+        pixelRatio: 2,
       });
 
-      // Baixar automaticamente
+      // Baixa automaticamente a imagem
       const link = document.createElement("a");
       link.download = "certificado-bct.png";
       link.href = dataUrl;
       link.click();
 
-      // Compartilhamento nativo
-      if (navigator.share) {
-        const blob = await (await fetch(dataUrl)).blob();
-        const file = new File([blob], "certificado.png", { type: "image/png" });
+      alert(
+        "A imagem do certificado foi gerada e baixada!\nAgora você pode compartilhar no WhatsApp, Instagram ou onde quiser."
+      );
 
-        await navigator.share({
-          title: "Meu Certificado BCT",
-          text: "Concluí a Certificação de Consultor BCT!",
-          files: [file],
-        });
-      } else {
-        alert("A imagem foi baixada! Agora você pode compartilhar manualmente.");
-      }
     } catch (err) {
       console.error("Erro ao gerar imagem:", err);
       alert("Erro ao gerar o certificado.");
@@ -262,7 +254,7 @@ export default function Certificado() {
 
         <hr style={{ margin: "50px 0", borderColor: "#ccc" }} />
 
-        {/* 🔥 BOTÃO DE COMPARTILHAR */}
+        {/* BOTÃO DE COMPARTILHAR */}
         <button
           onClick={gerarImagemECompartilhar}
           style={{
