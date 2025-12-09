@@ -1,66 +1,51 @@
-export const runtime = "nodejs";
-
-import puppeteer from "puppeteer";
+import chromium from "@sparticuz/chromium";
+import puppeteer from "puppeteer-core";
+import pool from "../../../lib/db";
 
 export default async function handler(req, res) {
   try {
-    const { id } = req.query;
+    const { userId, html } = req.body;
 
-    const baseUrl =
-      process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-
-    // Buscar usuário
-    const userRes = await fetch(`${baseUrl}/api/usuario?id=${id}`);
-    const dataUser = await userRes.json();
-
-    if (!dataUser.ok) {
-      return res.status(404).send("Usuário não encontrado");
+    if (!userId || !html) {
+      return res.status(400).send("Dados incompletos");
     }
 
-    const nome = dataUser.usuario.name;
-    const cpf = dataUser.usuario.cpf;
-    const data = new Date().toLocaleDateString("pt-BR");
+    // Salva certificado no banco
+    await pool.query(
+      "UPDATE users SET is_certified = TRUE WHERE id = $1",
+      [userId]
+    );
 
-    // Abrir navegador
+    // 💡 Configura chrome serverless
+    const executablePath = await chromium.executablePath();
+
     const browser = await puppeteer.launch({
-      headless: "new",
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath,
+      headless: chromium.headless,
     });
 
     const page = await browser.newPage();
 
-    // URL do template
-    const url = `${baseUrl}/certificacao/pdf-template?nome=${encodeURIComponent(
-      nome
-    )}&cpf=${encodeURIComponent(cpf)}&data=${encodeURIComponent(data)}`;
+    await page.setContent(html, { waitUntil: "networkidle0" });
 
-    await page.goto(url, {
-      waitUntil: "networkidle0",
-      timeout: 60000,
-    });
-
-    // Gerar PDF
     const pdfBuffer = await page.pdf({
       format: "A4",
       printBackground: true,
-      margin: { top: "0mm", left: "0mm", right: "0mm", bottom: "0mm" },
     });
 
     await browser.close();
 
-    // Headers corretos para PDF
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader(
       "Content-Disposition",
-      'inline; filename="certificado-bct.pdf"'
+      "attachment; filename=certificado.pdf"
     );
-    res.setHeader("Content-Length", pdfBuffer.length);
+    return res.send(pdfBuffer);
 
-    // Enviar o PDF corretamente
-    res.end(pdfBuffer);
-
-  } catch (e) {
-    console.error("❌ ERRO AO GERAR PDF:", e);
+  } catch (err) {
+    console.error("❌ ERRO AO GERAR PDF:", err);
     return res.status(500).send("Erro ao gerar PDF");
   }
 }

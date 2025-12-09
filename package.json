@@ -8,6 +8,7 @@
     "build": "next build"
   },
   "dependencies": {
+    "@sparticuz/chromium": "^143.0.0",
     "bcryptjs": "^2.4.3",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
@@ -16,7 +17,7 @@
     "nodemailer": "^7.0.11",
     "pdfkit": "^0.17.2",
     "pg": "^8.11.1",
-    "puppeteer": "^24.32.1",
+    "puppeteer-core": "^24.32.1",
     "qrcode": "^1.5.3",
     "react": "18.2.0",
     "react-dom": "18.2.0",
