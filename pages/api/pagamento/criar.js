@@ -22,36 +22,38 @@ export default async function handler(req, res) {
     }
 
     // -------------------------------------------------------
-    // 1️⃣ Criar cobrança ASAAS
+    // 1️⃣ CRIAR COBRANÇA PIX NO ASAAS
     // -------------------------------------------------------
-    const cobrancaResponse = await fetch("https://api.asaas.com/v3/payments", {
+    const url = "https://www.asaas.com/api/v3/payments"; // 🔥 URL CORRETA
+
+    const bodyData = {
+      customer: CUSTOMER_ID,
+      billingType: "PIX",
+      value: 17.77,
+      description: `Certificação BCT - Usuário ${userId}`,
+    };
+
+    const cobrancaResponse = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "User-Agent": "certificacao-bct",
         "access_token": API_KEY
       },
-      body: JSON.stringify({
-        customer: CUSTOMER_ID,          // 🔥 Cliente fixo CERTIFICAÇÃO-BCT
-        billingType: "PIX",
-        value: 17.77,
-        description: `Certificação BCT - Usuário ${userId}`,
-        dueDate: new Date().toISOString().split("T")[0],
-      }),
+      body: JSON.stringify(bodyData),
     });
 
-    let cobrancaText = await cobrancaResponse.text();
-    console.log("🔵 RESPOSTA ASAAS (raw):", cobrancaText);
+    const textoBruto = await cobrancaResponse.text();
+    console.log("🔵 RESPOSTA ASAAS (raw):", textoBruto);
 
     let cobranca;
     try {
-      cobranca = JSON.parse(cobrancaText);
+      cobranca = JSON.parse(textoBruto);
     } catch (e) {
-      console.error("❌ Falha ao parsear JSON:", e);
+      console.error("❌ JSON inválido do ASAAS:", e);
       return res.status(500).json({
         ok: false,
         error: "Resposta inválida do Asaas",
-        raw: cobrancaText
+        raw: textoBruto
       });
     }
 
@@ -63,6 +65,9 @@ export default async function handler(req, res) {
       });
     }
 
+    // -------------------------------------------------------
+    // 🔥 RETORNO FINAL
+    // -------------------------------------------------------
     return res.status(200).json({
       ok: true,
       charge_id: cobranca.id,
