@@ -4,51 +4,62 @@ import pool from "../../lib/db";
 export default async function handler(req, res) {
   try {
     const { id } = req.query;
-    console.log("API /api/usuario chamado — id:", id);
+
+    console.log("📡 [API] /api/usuario — ID recebido:", id);
 
     if (!id) {
-      console.log("-> ID não fornecido");
+      console.log("❌ ID não fornecido");
       return res.status(400).json({ ok: false, error: "ID não fornecido." });
     }
 
     if (!process.env.DATABASE_URL) {
-      console.log("⚠️ ATENÇÃO: DATABASE_URL NÃO ENCONTRADA no env.");
+      console.log("⚠️ AVISO: DATABASE_URL NÃO ENCONTRADA nas variáveis de ambiente.");
     }
 
-    // 🔥 BUSCA COMPLETA — AGORA INCLUINDO is_paid_certification
+    // ------------------------------------------------------
+    // 🔍 CONSULTA COMPLETA DO USUÁRIO (com is_paid_certification)
+    // ------------------------------------------------------
     const result = await pool.query(
       `
-      SELECT 
-        id,
-        name,
-        cpf,
-        email,
-        consultor_id,
-        is_certified,
-        is_paid_certification,
-        created_at
-      FROM users
-      WHERE id = $1
+        SELECT 
+          id,
+          name,
+          cpf,
+          email,
+          consultor_id,
+          is_certified,
+          is_paid_certification,
+          created_at
+        FROM users
+        WHERE id = $1
       `,
       [id]
     );
 
-    console.log("Resultado do SELECT (rows length):", result.rows.length);
+    console.log("📦 Resultado SELECT — rows:", result.rows.length);
 
     if (result.rows.length === 0) {
+      console.log("❌ Usuário não encontrado no banco.");
       return res.status(404).json({
         ok: false,
         error: "Usuário não encontrado."
       });
     }
 
+    const usuario = result.rows[0];
+    console.log("👤 Usuário carregado:", usuario);
+
+    // ------------------------------------------------------
+    // ✔ RETORNAR PARA O FRONTEND
+    // ------------------------------------------------------
     return res.json({
       ok: true,
-      usuario: result.rows[0]
+      usuario
     });
 
   } catch (err) {
-    console.error("❌ Erro /api/usuario:", err);
+    console.error("❌ Erro no endpoint /api/usuario:", err);
+
     const isDev = process.env.NODE_ENV !== "production";
 
     return res.status(500).json({

@@ -216,20 +216,21 @@ export default function Painel() {
           </button>
 
           {modalPix && pagamento && (
-            <div
-              style={{
-                marginTop: 30,
-                padding: 20,
-                borderRadius: 16,
-                background: "white",
-                border: "1px solid #ccc",
-                width: "100%",
-                maxWidth: "460px",
-                marginLeft: "auto",
-                marginRight: "auto",
-                boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
-              }}
-            >
+<div
+  style={{
+    marginTop: 30,
+    padding: 20,
+    borderRadius: 16,
+    background: "#ffffff",
+    border: "1px solid #ccc",
+    width: "100%",
+    maxWidth: "460px",
+    marginLeft: "auto",
+    marginRight: "auto",
+    boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+    boxSizing: "border-box",
+  }}
+>
               <h3 style={{ textAlign: "center" }}>Código PIX Copia e Cola:</h3>
 
               <textarea
