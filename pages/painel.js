@@ -15,7 +15,7 @@ export default function Painel() {
   const [modalPix, setModalPix] = useState(false);
 
   // ------------------------------------------------------
-  // 🔹 Carregar usuário + progresso
+  // 🔹 Carregar usuário + progresso real
   // ------------------------------------------------------
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -52,44 +52,43 @@ export default function Painel() {
   }, []);
 
   // ------------------------------------------------------
-  // 🔥 GERAR PIX COPIA E COLA
+  // 🔥 FUNÇÃO PARA CRIAR PAGAMENTO ASAAS
   // ------------------------------------------------------
-async function gerarPagamento() {
-  try {
-    const userId = localStorage.getItem("userId");
+  async function gerarPagamento() {
+    try {
+      const userId = localStorage.getItem("userId");
 
-    const res = await fetch("/api/pagamento/criar", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId,
-        email: usuario.email,
-        cpf: usuario.cpf,
-        name: usuario.name,
-      }),
-    });
+      const res = await fetch("/api/pagamento/criar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          email: usuario.email,
+          cpf: usuario.cpf,
+          name: usuario.name,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json();
+      console.log("RESPOSTA FRONT:", data);
 
-    console.log("RETORNO DO BACKEND:", data);
+      if (!data.success) {
+        alert("Erro ao gerar pagamento.");
+        return;
+      }
 
-    // Se não veio success:true → ERRO
-    if (!data.success) {
-      alert("Erro ao gerar pagamento.");
-      return;
+      // 🔥 AQUI ESTÁ A CORREÇÃO:
+      setPagamento({
+        pixCopyPaste: data.payload,   // CAMPO CORRETO
+        chargeId: data.chargeId || null,
+      });
+
+      setModalPix(true);
+    } catch (err) {
+      console.log("Erro pagamento:", err);
+      alert("Erro interno ao criar pagamento.");
     }
-
-    // GUARDA o PIX copia e cola correto
-    setPagamento({
-      pixCopyPaste: data.payload,   // agora certo
-    });
-
-    setModalPix(true);
-  } catch (err) {
-    console.log("Erro pagamento:", err);
-    alert("Erro interno ao criar pagamento.");
   }
-}
 
   // ------------------------------------------------------
   // 🔹 Calcular módulo atual
@@ -104,12 +103,10 @@ async function gerarPagamento() {
   const atual = moduloAtual();
   const percent = Math.round((progresso.length / totalModulos) * 100);
 
-  if (loading) {
-    return <div style={{ padding: 40 }}>Carregando painel…</div>;
-  }
+  if (loading) return <div style={{ padding: 40 }}>Carregando painel…</div>;
 
   // ------------------------------------------------------
-  // 🔥 TELA DE PAGAMENTO (AINDA NÃO PAGOU)
+  // 🔥 TELA DE PAGAMENTO
   // ------------------------------------------------------
   if (!usuario?.is_paid_certification) {
     return (
@@ -153,7 +150,6 @@ async function gerarPagamento() {
             Pagar Agora via PIX
           </button>
 
-          {/* Modal PIX */}
           {modalPix && pagamento && (
             <div
               style={{
@@ -171,7 +167,7 @@ async function gerarPagamento() {
                 value={pagamento.pixCopyPaste}
                 style={{
                   width: "100%",
-                  height: 120,
+                  height: 140,
                   padding: 10,
                   borderRadius: 8,
                   border: "1px solid #ccc",
@@ -208,7 +204,7 @@ async function gerarPagamento() {
   }
 
   // ------------------------------------------------------
-  // 🔥 USUÁRIO JÁ PAGOU — PAINEL COMPLETO
+  // 🔥 PAINEL COMPLETO
   // ------------------------------------------------------
   return (
     <div
@@ -243,7 +239,7 @@ async function gerarPagamento() {
         )}
 
         <p style={{ color: "#333", marginBottom: 30 }}>
-          Acompanhe sua jornada de certificação do Consultor BCT.
+          Acompanhe sua jornada de certificação.
         </p>
 
         <div
@@ -251,9 +247,9 @@ async function gerarPagamento() {
             background: "white",
             padding: "35px",
             borderRadius: "16px",
-            boxShadow: "0px 6px 12px rgba(0,0,0,0.1)",
             border: "1px solid #ccc",
             marginBottom: "40px",
+            boxShadow: "0px 6px 12px rgba(0,0,0,0.1)",
           }}
         >
           <h2 style={{ marginBottom: 20, color: "#101820" }}>
@@ -349,22 +345,6 @@ async function gerarPagamento() {
             </div>
           );
         })}
-
-        {usuario?.is_certified && (
-          <button
-            onClick={() => router.push("/certificado")}
-            style={{
-              padding: "12px 18px",
-              background: "#624b43",
-              color: "white",
-              borderRadius: "12px",
-              fontWeight: "600",
-              marginTop: 20,
-            }}
-          >
-            📄 Visualizar Certificado
-          </button>
-        )}
       </div>
     </div>
   );
