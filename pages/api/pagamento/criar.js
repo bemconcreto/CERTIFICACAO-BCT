@@ -1,67 +1,77 @@
-import axios from "axios";
-
 export default async function handler(req, res) {
   try {
-    const { userId, name, email, cpf } = req.body;
-
-    if (!userId || !name || !email || !cpf) {
-      return res.status(400).json({ ok: false, error: "Dados inválidos." });
+    if (req.method !== "POST") {
+      return res.status(405).json({ ok: false, error: "Método não permitido" });
     }
 
-    const API = axios.create({
-      baseURL: "https://www.asaas.com/api/v3",
+    const { userId, email, name } = req.body;
+
+    if (!userId || !email || !name) {
+      return res.status(400).json({ ok: false, error: "Dados incompletos" });
+    }
+
+    const API_KEY = process.env.ASAAS_API_KEY;
+    const CUSTOMER_ID = process.env.ASAAS_CUSTOMER_ID;
+
+    if (!API_KEY) {
+      return res.status(500).json({ ok: false, error: "API KEY ausente" });
+    }
+
+    if (!CUSTOMER_ID) {
+      return res.status(500).json({ ok: false, error: "CUSTOMER_ID ausente" });
+    }
+
+    // -------------------------------------------------------
+    // 1️⃣ Criar cobrança ASAAS
+    // -------------------------------------------------------
+    const cobrancaResponse = await fetch("https://api.asaas.com/v3/payments", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
-        access_token: process.env.ASAAS_API_KEY,   // 👈 OBRIGATÓRIO
-      }
+        "User-Agent": "certificacao-bct",
+        "access_token": API_KEY
+      },
+      body: JSON.stringify({
+        customer: CUSTOMER_ID,          // 🔥 Cliente fixo CERTIFICAÇÃO-BCT
+        billingType: "PIX",
+        value: 17.77,
+        description: `Certificação BCT - Usuário ${userId}`,
+        dueDate: new Date().toISOString().split("T")[0],
+      }),
     });
 
-    // 🟦 1) Criar ou localizar cliente
-    const cliente = await API.post("/customers", {
-      name,
-      email,
-      cpfCnpj: cpf,
-      externalReference: `cert-${userId}`,
-    }).catch(e => e.response);
+    let cobrancaText = await cobrancaResponse.text();
+    console.log("🔵 RESPOSTA ASAAS (raw):", cobrancaText);
 
-    console.log("🔵 RESPOSTA CLIENTE:", cliente?.data);
-
-    if (!cliente?.data?.id) {
+    let cobranca;
+    try {
+      cobranca = JSON.parse(cobrancaText);
+    } catch (e) {
+      console.error("❌ Falha ao parsear JSON:", e);
       return res.status(500).json({
         ok: false,
-        error: "Falha ao criar cliente no ASAAS",
-        detalhe: cliente?.data
+        error: "Resposta inválida do Asaas",
+        raw: cobrancaText
       });
     }
 
-    const customerId = cliente.data.id;
-
-    // 🟩 2) Criar cobrança PIX de R$ 17,77
-    const cobranca = await API.post("/payments", {
-      customer: customerId,
-      billingType: "PIX",
-      value: 17.77,
-      description: "Certificação Consultor BCT",
-      dueDate: new Date().toISOString().substring(0, 10),
-    }).catch(e => e.response);
-
-    console.log("🟢 RESPOSTA COBRANÇA:", cobranca?.data);
-
-    if (!cobranca?.data?.id) {
+    if (!cobranca || !cobranca.id) {
       return res.status(500).json({
         ok: false,
-        error: "Falha ao gerar cobrança",
-        detalhe: cobranca?.data
+        error: "Falha ao criar cobrança",
+        detalhes: cobranca,
       });
     }
 
-    return res.json({
+    return res.status(200).json({
       ok: true,
-      charge: cobranca.data,
+      charge_id: cobranca.id,
+      pixCopyPaste: cobranca.pixCopyPaste,
+      qrCodeImage: cobranca.qrCodeImage,
     });
 
   } catch (err) {
-    console.error("❌ ERRO FINAL:", err);
-    return res.status(500).json({ ok: false, error: "Erro interno", detalhe: err.message });
+    console.error("🔥 ERRO NO PAGAMENTO:", err);
+    return res.status(500).json({ ok: false, error: "Erro interno no pagamento" });
   }
 }

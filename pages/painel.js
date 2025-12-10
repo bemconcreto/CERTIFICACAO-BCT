@@ -45,6 +45,7 @@ export default function Painel() {
 
         setLoading(false);
       } catch (err) {
+        console.log("Erro carregar painel:", err);
         setLoading(false);
       }
     }
@@ -53,7 +54,7 @@ export default function Painel() {
   }, []);
 
   // ------------------------------------------------------
-  // 🔥 FUNÇÃO PARA GERAR PAGAMENTO VIA ASAAS
+  // 🔥 FUNÇÃO PARA CRIAR PAGAMENTO ASAAS
   // ------------------------------------------------------
   async function gerarPagamento() {
     try {
@@ -71,15 +72,24 @@ export default function Painel() {
       });
 
       const data = await res.json();
+
       if (!data.ok) {
+        console.log("Erro ao criar pagamento:", data);
         alert("Erro ao gerar pagamento.");
         return;
       }
 
-      setPagamento(data);
+      // Guarda dados do pagamento (qrCodeImage / pixCopyPaste)
+      setPagamento({
+        qrCodeImage: data.qrCodeImage,
+        pixCopyPaste: data.pixCopyPaste,
+        chargeId: data.charge_id,
+      });
+
       setModalPix(true);
     } catch (err) {
       console.log("Erro pagamento:", err);
+      alert("Erro interno ao criar pagamento.");
     }
   }
 
@@ -126,9 +136,7 @@ export default function Painel() {
           }}
         >
           <h2 style={{ marginBottom: 10 }}>🎓 Falta Pouco!</h2>
-          <p>
-            Para acessar a Certificação BCT, finalize o pagamento único de:
-          </p>
+          <p>Para acessar a Certificação BCT, finalize o pagamento único:</p>
 
           <h1 style={{ color: "#624b43", margin: "20px 0" }}>R$ 17,77</h1>
 
@@ -161,7 +169,7 @@ export default function Painel() {
               <h3>Escaneie o QR Code:</h3>
 
               <img
-                src={`data:image/png;base64,${pagamento.qrCodeBase64}`}
+                src={pagamento.qrCodeImage}
                 style={{
                   width: 220,
                   height: 220,
@@ -174,7 +182,7 @@ export default function Painel() {
 
               <textarea
                 readOnly
-                value={pagamento.copiaCola}
+                value={pagamento.pixCopyPaste}
                 style={{
                   width: "100%",
                   height: 90,
@@ -185,7 +193,9 @@ export default function Painel() {
               />
 
               <button
-                onClick={() => navigator.clipboard.writeText(pagamento.copiaCola)}
+                onClick={() =>
+                  navigator.clipboard.writeText(pagamento.pixCopyPaste)
+                }
                 style={{
                   marginTop: 10,
                   padding: "10px 16px",
@@ -200,7 +210,8 @@ export default function Painel() {
               </button>
 
               <p style={{ marginTop: 20, fontSize: 13, color: "#666" }}>
-                Assim que confirmar o pagamento no ASAAS, seu acesso será liberado automaticamente.
+                Assim que o pagamento for confirmado no ASAAS, seu acesso será
+                liberado automaticamente.
               </p>
             </div>
           )}
@@ -223,12 +234,10 @@ export default function Painel() {
       }}
     >
       <div style={{ width: "100%", maxWidth: "900px" }}>
-        
         <h1 style={{ fontSize: 32, fontWeight: 700, color: "#101820" }}>
           Bem-vindo(a), {usuario?.name} 👋
         </h1>
 
-        {/* SELO DE CERTIFICADO */}
         {usuario?.is_certified && (
           <div
             style={{
@@ -250,7 +259,6 @@ export default function Painel() {
           Acompanhe sua jornada de certificação do Consultor BCT.
         </p>
 
-        {/* CARD PRINCIPAL */}
         <div
           style={{
             background: "white",
@@ -306,7 +314,6 @@ export default function Painel() {
           </button>
         </div>
 
-        {/* LISTA DE MÓDULOS */}
         {modules.map((mod) => {
           const completed = progresso.includes(mod.id);
           const locked = !completed && mod.id > atual;
@@ -356,7 +363,6 @@ export default function Painel() {
           );
         })}
 
-        {/* BOTÃO DO CERTIFICADO */}
         {usuario?.is_certified && (
           <button
             onClick={() => router.push("/certificado")}
@@ -372,7 +378,6 @@ export default function Painel() {
             📄 Visualizar Certificado
           </button>
         )}
-
       </div>
     </div>
   );
