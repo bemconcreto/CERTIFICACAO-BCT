@@ -54,41 +54,42 @@ export default function Painel() {
   // ------------------------------------------------------
   // 🔥 GERAR PIX COPIA E COLA
   // ------------------------------------------------------
-  async function gerarPagamento() {
-    try {
-      const userId = localStorage.getItem("userId");
+async function gerarPagamento() {
+  try {
+    const userId = localStorage.getItem("userId");
 
-      const res = await fetch("/api/pagamento/criar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId,
-          email: usuario.email,
-          cpf: usuario.cpf,
-          name: usuario.name,
-        }),
-      });
+    const res = await fetch("/api/pagamento/criar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        userId,
+        email: usuario.email,
+        cpf: usuario.cpf,
+        name: usuario.name,
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
-      if (!data.success) {
-        console.log("Erro ao criar pagamento:", data);
-        alert("Erro ao gerar pagamento.");
-        return;
-      }
+    console.log("RETORNO DO BACKEND:", data);
 
-      // Guarda somente o PIX Copia e Cola
-      setPagamento({
-       pixCopyPaste: data.payload,
-        chargeId: data.chargeId || null,
-      });
-
-      setModalPix(true);
-    } catch (err) {
-      console.log("Erro pagamento:", err);
-      alert("Erro interno ao criar pagamento.");
+    // Se não veio success:true → ERRO
+    if (!data.success) {
+      alert("Erro ao gerar pagamento.");
+      return;
     }
+
+    // GUARDA o PIX copia e cola correto
+    setPagamento({
+      pixCopyPaste: data.payload,   // agora certo
+    });
+
+    setModalPix(true);
+  } catch (err) {
+    console.log("Erro pagamento:", err);
+    alert("Erro interno ao criar pagamento.");
   }
+}
 
   // ------------------------------------------------------
   // 🔹 Calcular módulo atual
