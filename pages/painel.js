@@ -12,10 +12,11 @@ export default function Painel() {
 
   const [pagamento, setPagamento] = useState(null);
   const [modalPix, setModalPix] = useState(false);
+  const [pagamentoConfirmado, setPagamentoConfirmado] = useState(false);
 
-  // ------------------------------------------------------
-  // 🔄 AUTO-REFRESH A CADA 5 SEGUNDOS
-  // ------------------------------------------------------
+  // ======================================================
+  // 🔄 Auto-refresh a cada 5 segundos
+  // ======================================================
   useEffect(() => {
     const interval = setInterval(() => {
       atualizarUsuario();
@@ -24,9 +25,9 @@ export default function Painel() {
     return () => clearInterval(interval);
   }, []);
 
-  // ------------------------------------------------------
-  // Carregar usuário + progresso
-  // ------------------------------------------------------
+  // ======================================================
+  // Carregar usuário ao abrir
+  // ======================================================
   useEffect(() => {
     atualizarUsuario();
   }, []);
@@ -44,11 +45,19 @@ export default function Painel() {
       const dataUser = await resUser.json();
 
       if (dataUser.ok) {
-        setUsuario(dataUser.usuario);
+        const user = dataUser.usuario;
+        setUsuario(user);
 
-        // 🔥 SE PAGOU, REDIRECIONAR AUTOMATICAMENTE
-        if (dataUser.usuario.is_paid_certification) {
-          setModalPix(false);
+        // 🎉 Se pagamento foi confirmado e estava no PIX → mostrar tela de sucesso
+        if (user.is_paid_certification) {
+          if (modalPix) {
+            setPagamentoConfirmado(true);
+            setModalPix(false);
+
+            setTimeout(() => {
+              setPagamentoConfirmado(false);
+            }, 2500);
+          }
         }
       }
 
@@ -63,9 +72,9 @@ export default function Painel() {
     setLoading(false);
   }
 
-  // ------------------------------------------------------
-  // PAGAMENTO PIX
-  // ------------------------------------------------------
+  // ======================================================
+  // Criar pagamento PIX
+  // ======================================================
   async function gerarPagamento() {
     try {
       const userId = localStorage.getItem("userId");
@@ -102,9 +111,9 @@ export default function Painel() {
     }
   }
 
-  // ------------------------------------------------------
-  // Calcular módulo atual
-  // ------------------------------------------------------
+  // ======================================================
+  // Progresso
+  // ======================================================
   function moduloAtual() {
     for (let i = 1; i <= totalModulos; i++) {
       if (!progresso.includes(i)) return i;
@@ -117,9 +126,53 @@ export default function Painel() {
 
   if (loading) return <div style={{ padding: 40 }}>Carregando painel…</div>;
 
-  // ------------------------------------------------------
-  // TELA DE PAGAMENTO
-  // ------------------------------------------------------
+  // ======================================================
+  // 🎉 Tela de pagamento confirmado
+  // ======================================================
+  if (pagamentoConfirmado) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          background: "#d9d9d6",
+          padding: 20,
+          textAlign: "center",
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            padding: "40px 30px",
+            borderRadius: 20,
+            maxWidth: 500,
+            width: "100%",
+            boxShadow: "0px 6px 14px rgba(0,0,0,0.1)",
+            border: "1px solid #ccc",
+            transition: "all 0.4s ease",
+          }}
+        >
+          <h2 style={{ fontSize: 28, fontWeight: 700, color: "#2ecc71" }}>
+            ✔ Pagamento Confirmado!
+          </h2>
+
+          <p style={{ marginTop: 10, fontSize: 16 }}>
+            Seu acesso foi liberado com sucesso.
+          </p>
+
+          <p style={{ marginTop: 20, fontSize: 14, color: "#555" }}>
+            Redirecionando…
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // ======================================================
+  // TELA DO PIX
+  // ======================================================
   if (!usuario?.is_paid_certification) {
     return (
       <div
@@ -155,7 +208,6 @@ export default function Painel() {
               background: "#101820",
               color: "white",
               borderRadius: 12,
-              cursor: "pointer",
               fontWeight: 600,
               width: "100%",
             }}
@@ -169,21 +221,19 @@ export default function Painel() {
                 marginTop: 30,
                 padding: 20,
                 borderRadius: 16,
-                background: "#ffffff",
+                background: "white",
                 border: "1px solid #ccc",
                 width: "100%",
                 maxWidth: "460px",
                 marginLeft: "auto",
                 marginRight: "auto",
                 boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
-                boxSizing: "border-box",
               }}
             >
               <h3 style={{ textAlign: "center" }}>Código PIX Copia e Cola:</h3>
 
               <textarea
                 readOnly
-                wrap="soft"
                 value={pagamento.pixCopyPaste}
                 style={{
                   width: "100%",
@@ -193,7 +243,6 @@ export default function Painel() {
                   border: "1px solid #ccc",
                   fontSize: 14,
                   whiteSpace: "pre-wrap",
-                  boxSizing: "border-box",
                 }}
               />
 
@@ -232,9 +281,9 @@ export default function Painel() {
     );
   }
 
-  // ------------------------------------------------------
-  // PAINEL COMPLETO
-  // ------------------------------------------------------
+  // ======================================================
+  // 🎓 PAINEL COMPLETO
+  // ======================================================
   return (
     <div
       style={{
@@ -296,7 +345,6 @@ export default function Painel() {
               background: "#101820",
               color: "white",
               borderRadius: 12,
-              cursor: "pointer",
               fontWeight: 600,
             }}
           >
@@ -306,7 +354,7 @@ export default function Painel() {
           </button>
         </div>
 
-        {/* Lista de Módulos */}
+        {/* Lista de módulos */}
         {modules.map((mod) => {
           const completed = progresso.includes(mod.id);
           const locked = !completed && mod.id > atual;
