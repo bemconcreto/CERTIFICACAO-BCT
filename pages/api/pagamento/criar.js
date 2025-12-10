@@ -60,11 +60,11 @@ export default async function handler(req, res) {
     }
 
     // 3️⃣ Retornar somente O PIX COPY/PASTE
-    return res.status(200).json({
-      ok: true,
-      charge_id: paymentId,
-      pixCopyPaste: qrData.payload,
-    });
+return res.status(200).json({
+  success: true,
+  chargeId: paymentId,
+  copiaCola: qrData.payload,
+});
 
   } catch (err) {
     console.log("❌ ERRO AO GERAR PIX:", err);
