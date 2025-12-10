@@ -14,9 +14,24 @@ export default function Painel() {
   const [modalPix, setModalPix] = useState(false);
 
   // ------------------------------------------------------
-  // Carregar usuário + progresso inicial
+  // 🔄 AUTO-REFRESH A CADA 5 SEGUNDOS
   // ------------------------------------------------------
   useEffect(() => {
+    const interval = setInterval(() => {
+      atualizarUsuario();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // ------------------------------------------------------
+  // Carregar usuário + progresso
+  // ------------------------------------------------------
+  useEffect(() => {
+    atualizarUsuario();
+  }, []);
+
+  async function atualizarUsuario() {
     const userId = localStorage.getItem("userId");
 
     if (!userId) {
@@ -24,57 +39,32 @@ export default function Painel() {
       return;
     }
 
-    async function carregar() {
-      try {
-        const resUser = await fetch(`/api/usuario?id=${userId}`);
-        const dataUser = await resUser.json();
+    try {
+      const resUser = await fetch(`/api/usuario?id=${userId}`);
+      const dataUser = await resUser.json();
 
-        if (!dataUser.ok) {
-          setLoading(false);
-          return;
-        }
-
+      if (dataUser.ok) {
         setUsuario(dataUser.usuario);
 
-        const resProg = await fetch(`/api/modulos/progresso?userId=${userId}`);
-        const dataProg = await resProg.json();
-        if (dataProg.ok) setProgresso(dataProg.modulos);
-
-      } catch (err) {
-        console.log("Erro carregar painel:", err);
-      }
-
-      setLoading(false);
-    }
-
-    carregar();
-  }, []);
-
-  // ------------------------------------------------------
-  // 🔥 AUTO-REFRESH (verifica pagamento a cada 3s)
-  // ------------------------------------------------------
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    if (!userId) return;
-
-    const interval = setInterval(async () => {
-      const res = await fetch(`/api/usuario?id=${userId}`);
-      const data = await res.json();
-
-      if (data.ok) {
-        setUsuario(data.usuario);
-
-        if (data.usuario.is_paid_certification) {
-          router.push("/painel");
+        // 🔥 SE PAGOU, REDIRECIONAR AUTOMATICAMENTE
+        if (dataUser.usuario.is_paid_certification) {
+          setModalPix(false);
         }
       }
-    }, 3000);
 
-    return () => clearInterval(interval);
-  }, []);
+      const resProg = await fetch(`/api/modulos/progresso?userId=${userId}`);
+      const dataProg = await resProg.json();
+      if (dataProg.ok) setProgresso(dataProg.modulos);
+
+    } catch (err) {
+      console.log("Erro atualizar painel:", err);
+    }
+
+    setLoading(false);
+  }
 
   // ------------------------------------------------------
-  // FUNÇÃO PARA GERAR PAGAMENTO PIX
+  // PAGAMENTO PIX
   // ------------------------------------------------------
   async function gerarPagamento() {
     try {
@@ -128,7 +118,7 @@ export default function Painel() {
   if (loading) return <div style={{ padding: 40 }}>Carregando painel…</div>;
 
   // ------------------------------------------------------
-  // TELA DE PAGAMENTO (quando ainda não foi pago)
+  // TELA DE PAGAMENTO
   // ------------------------------------------------------
   if (!usuario?.is_paid_certification) {
     return (
@@ -139,7 +129,6 @@ export default function Painel() {
           padding: "40px 20px",
           display: "flex",
           justifyContent: "center",
-          alignItems: "flex-start",
         }}
       >
         <div
@@ -198,13 +187,11 @@ export default function Painel() {
                 value={pagamento.pixCopyPaste}
                 style={{
                   width: "100%",
-                  maxWidth: "100%",
                   height: 140,
                   padding: 10,
                   borderRadius: 8,
                   border: "1px solid #ccc",
                   fontSize: 14,
-                  overflowWrap: "break-word",
                   whiteSpace: "pre-wrap",
                   boxSizing: "border-box",
                 }}
@@ -246,7 +233,7 @@ export default function Painel() {
   }
 
   // ------------------------------------------------------
-  // PAINEL LIBERADO APÓS PAGAMENTO
+  // PAINEL COMPLETO
   // ------------------------------------------------------
   return (
     <div
@@ -263,11 +250,112 @@ export default function Painel() {
           Bem-vindo(a), {usuario?.name} 👋
         </h1>
 
-        <p style={{ color: "#333", marginTop: 10 }}>
+        <p style={{ color: "#333", marginBottom: 30 }}>
           Acompanhe sua jornada de certificação.
         </p>
 
-        {/* Aqui você coloca o restante do painel */}
+        {/* Barra de progresso */}
+        <div
+          style={{
+            background: "white",
+            padding: 30,
+            borderRadius: 16,
+            border: "1px solid #ccc",
+            marginBottom: 40,
+          }}
+        >
+          <h2 style={{ marginBottom: 20 }}>Progresso da Certificação</h2>
+
+          <div
+            style={{
+              width: "100%",
+              height: 18,
+              background: "#eee",
+              borderRadius: 20,
+              overflow: "hidden",
+              marginBottom: 20,
+            }}
+          >
+            <div
+              style={{
+                width: `${percent}%`,
+                height: "100%",
+                background: "#624b43",
+              }}
+            />
+          </div>
+
+          <button
+            onClick={() =>
+              atual === "concluido"
+                ? router.push("/certificado")
+                : router.push(`/modulos/${atual}`)
+            }
+            style={{
+              padding: "14px 22px",
+              background: "#101820",
+              color: "white",
+              borderRadius: 12,
+              cursor: "pointer",
+              fontWeight: 600,
+            }}
+          >
+            {atual === "concluido"
+              ? "Emitir Certificado"
+              : `Continuar no Módulo ${atual}`}
+          </button>
+        </div>
+
+        {/* Lista de Módulos */}
+        {modules.map((mod) => {
+          const completed = progresso.includes(mod.id);
+          const locked = !completed && mod.id > atual;
+
+          return (
+            <div
+              key={mod.id}
+              style={{
+                background: "white",
+                padding: 20,
+                marginBottom: 14,
+                borderRadius: 12,
+                border: "1px solid #ccc",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div>
+                <strong>{mod.title}</strong>
+                <p style={{ margin: 0 }}>
+                  {completed
+                    ? "✔ Concluído"
+                    : locked
+                    ? "🔒 Bloqueado"
+                    : "▶ Disponível"}
+                </p>
+              </div>
+
+              <button
+                disabled={locked}
+                onClick={() => router.push(`/modulos/${mod.id}`)}
+                style={{
+                  padding: "10px 18px",
+                  background: locked
+                    ? "#bbb"
+                    : completed
+                    ? "#2ecc71"
+                    : "#624b43",
+                  color: "white",
+                  borderRadius: 10,
+                  cursor: locked ? "not-allowed" : "pointer",
+                }}
+              >
+                {completed ? "Revisar" : "Acessar"}
+              </button>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
