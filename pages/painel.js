@@ -110,26 +110,28 @@ export default function Painel() {
   // ------------------------------------------------------
   if (!usuario?.is_paid_certification) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "#d9d9d6",
-          padding: 40,
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            background: "white",
-            padding: 40,
-            borderRadius: 16,
-            maxWidth: 500,
-            width: "100%",
-            textAlign: "center",
-            border: "1px solid #ccc",
-          }}
-        >
+<div
+  style={{
+    minHeight: "100vh",
+    background: "#d9d9d6",
+    padding: "40px 20px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+  }}
+>
+  <div
+    style={{
+      background: "white",
+      padding: "40px 30px",
+      borderRadius: 20,
+      maxWidth: "520px",
+      width: "100%",
+      textAlign: "center",
+      border: "1px solid #ccc",
+      boxShadow: "0px 6px 14px rgba(0,0,0,0.08)",
+    }}
+  >
           <h2 style={{ marginBottom: 10 }}>🎓 Falta Pouco!</h2>
           <p>Para acessar a Certificação BCT, finalize o pagamento único:</p>
 
@@ -151,15 +153,20 @@ export default function Painel() {
           </button>
 
           {modalPix && pagamento && (
-            <div
-              style={{
-                marginTop: 30,
-                padding: 20,
-                borderRadius: 12,
-                background: "#f5f5f5",
-                border: "1px solid #ccc",
-              }}
-            >
+<div
+  style={{
+    marginTop: 30,
+    padding: 20,
+    borderRadius: 16,
+    background: "#ffffff",
+    border: "1px solid #ccc",
+    maxWidth: "480px",
+    width: "100%",
+    marginLeft: "auto",
+    marginRight: "auto",
+    boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+  }}
+>
               <h3>Código PIX Copia e Cola:</h3>
 
               <textarea
@@ -194,7 +201,7 @@ export default function Painel() {
               </button>
 
               <p style={{ marginTop: 20, fontSize: 13, color: "#666" }}>
-                Assim que o pagamento for confirmado no ASAAS, seu acesso será
+                Assim que o pagamento for confirmado, seu acesso será
                 liberado automaticamente.
               </p>
             </div>
