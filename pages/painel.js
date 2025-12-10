@@ -15,7 +15,7 @@ export default function Painel() {
   const [modalPix, setModalPix] = useState(false);
 
   // ------------------------------------------------------
-  // 🔹 Carregar usuário + progresso real
+  // 🔹 Carregar usuário + progresso
   // ------------------------------------------------------
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -27,7 +27,6 @@ export default function Painel() {
 
     async function carregar() {
       try {
-        // 1️⃣ Buscar usuário
         const resUser = await fetch(`/api/usuario?id=${userId}`);
         const dataUser = await resUser.json();
 
@@ -38,7 +37,6 @@ export default function Painel() {
 
         setUsuario(dataUser.usuario);
 
-        // 2️⃣ Buscar progresso REAL (Supabase)
         const resProg = await fetch(`/api/modulos/progresso?userId=${userId}`);
         const dataProg = await resProg.json();
         if (dataProg.ok) setProgresso(dataProg.modulos);
@@ -54,7 +52,7 @@ export default function Painel() {
   }, []);
 
   // ------------------------------------------------------
-  // 🔥 FUNÇÃO PARA CRIAR PAGAMENTO NO BACKEND (ASAAS)
+  // 🔥 GERAR PIX COPIA E COLA
   // ------------------------------------------------------
   async function gerarPagamento() {
     try {
@@ -79,7 +77,7 @@ export default function Painel() {
         return;
       }
 
-      // ✔ Guarda somente o PIX Copia e Cola
+      // Guarda somente o PIX Copia e Cola
       setPagamento({
         pixCopyPaste: data.copiaCola,
         chargeId: data.chargeId || null,
@@ -110,7 +108,7 @@ export default function Painel() {
   }
 
   // ------------------------------------------------------
-  // 🔥 SE NÃO PAGOU, MOSTRA TELA DE PAGAMENTO
+  // 🔥 TELA DE PAGAMENTO (AINDA NÃO PAGOU)
   // ------------------------------------------------------
   if (!usuario?.is_paid_certification) {
     return (
@@ -209,7 +207,7 @@ export default function Painel() {
   }
 
   // ------------------------------------------------------
-  // 🔥 SE O USUÁRIO JÁ PAGOU — PAINEL COMPLETO
+  // 🔥 USUÁRIO JÁ PAGOU — PAINEL COMPLETO
   // ------------------------------------------------------
   return (
     <div
