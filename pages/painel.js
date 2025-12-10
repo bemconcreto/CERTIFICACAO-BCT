@@ -52,7 +52,7 @@ export default function Painel() {
   }, []);
 
   // ------------------------------------------------------
-  // 🔥 GERAR PAGAMENTO PIX
+  // 🔥 FUNÇÃO PARA CRIAR PAGAMENTO ASAAS
   // ------------------------------------------------------
   async function gerarPagamento() {
     try {
@@ -72,15 +72,15 @@ export default function Painel() {
       const data = await res.json();
       console.log("RESPOSTA FRONT:", data);
 
-      if (!data.ok) {
+      if (!data.success) {
         alert("Erro ao gerar pagamento.");
         return;
       }
 
-      // CORREÇÃO DEFINITIVA
+      // 🔥 AQUI ESTÁ A CORREÇÃO:
       setPagamento({
-        pixCopyPaste: data.pixCopyPaste, // ✔ AGORA LÊ O CAMPO CORRETO
-        chargeId: data.charge_id || null,
+        pixCopyPaste: data.payload,   // CAMPO CORRETO
+        chargeId: data.chargeId || null,
       });
 
       setModalPix(true);
@@ -106,7 +106,7 @@ export default function Painel() {
   if (loading) return <div style={{ padding: 40 }}>Carregando painel…</div>;
 
   // ------------------------------------------------------
-  // 🔥 TELA DE PAGAMENTO (ANTES DE LIBERAR)
+  // 🔥 TELA DE PAGAMENTO
   // ------------------------------------------------------
   if (!usuario?.is_paid_certification) {
     return (
