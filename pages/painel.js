@@ -9,14 +9,18 @@ export default function Painel() {
   const [usuario, setUsuario] = useState(null);
   const [progresso, setProgresso] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [certificateId, setCertificateId] = useState(null);
 
+  // 🔥 PAGAMENTO
+  const [pagamento, setPagamento] = useState(null);
+  const [modalPix, setModalPix] = useState(false);
+
+  // ------------------------------------------------------
   // 🔹 Carregar usuário + progresso real
+  // ------------------------------------------------------
   useEffect(() => {
-    const token = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
 
-    if (!token || !userId) {
+    if (!userId) {
       router.push("/login");
       return;
     }
@@ -28,7 +32,6 @@ export default function Painel() {
         const dataUser = await resUser.json();
 
         if (!dataUser.ok) {
-          console.log("Erro ao carregar usuário");
           setLoading(false);
           return;
         }
@@ -38,45 +41,10 @@ export default function Painel() {
         // 2️⃣ Buscar progresso REAL (Supabase)
         const resProg = await fetch(`/api/modulos/progresso?userId=${userId}`);
         const dataProg = await resProg.json();
-
-        if (dataProg.ok) {
-          setProgresso(dataProg.modulos);
-        }
-
-        // 3️⃣ Buscar certificado (caso exista)
-        if (dataUser.usuario.certificate_id) {
-          setCertificateId(dataUser.usuario.certificate_id);
-          localStorage.setItem("certificateId", dataUser.usuario.certificate_id);
-        }
-
-        // 🔥 4️⃣ Certificação automática
-        if (dataProg.modulos.length === totalModulos && !dataUser.usuario.is_certified) {
-          console.log("🟦 Usuário concluiu 11 módulos. Certificando...");
-
-          const res = await fetch("/api/certificado/finalizar", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ id: dataUser.usuario.id })
-          });
-
-          const cert = await res.json();
-
-          if (cert.ok) {
-            console.log("✔ Usuário certificado com sucesso!");
-
-            setUsuario((u) => ({ ...u, is_certified: true }));
-
-            if (cert.certificate_id) {
-              setCertificateId(cert.certificate_id);
-              localStorage.setItem("certificateId", cert.certificate_id);
-            }
-          }
-        }
+        if (dataProg.ok) setProgresso(dataProg.modulos);
 
         setLoading(false);
-
       } catch (err) {
-        console.log("Erro carregar painel:", err);
         setLoading(false);
       }
     }
@@ -84,7 +52,40 @@ export default function Painel() {
     carregar();
   }, []);
 
+  // ------------------------------------------------------
+  // 🔥 FUNÇÃO PARA GERAR PAGAMENTO VIA ASAAS
+  // ------------------------------------------------------
+  async function gerarPagamento() {
+    try {
+      const userId = localStorage.getItem("userId");
+
+      const res = await fetch("/api/pagamento/criar", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          email: usuario.email,
+          cpf: usuario.cpf,
+          name: usuario.name,
+        }),
+      });
+
+      const data = await res.json();
+      if (!data.ok) {
+        alert("Erro ao gerar pagamento.");
+        return;
+      }
+
+      setPagamento(data);
+      setModalPix(true);
+    } catch (err) {
+      console.log("Erro pagamento:", err);
+    }
+  }
+
+  // ------------------------------------------------------
   // 🔹 Calcular módulo atual
+  // ------------------------------------------------------
   function moduloAtual() {
     for (let i = 1; i <= totalModulos; i++) {
       if (!progresso.includes(i)) return i;
@@ -99,6 +100,118 @@ export default function Painel() {
     return <div style={{ padding: 40 }}>Carregando painel…</div>;
   }
 
+  // ------------------------------------------------------
+  // 🔥 SE NÃO PAGOU, BLOQUEIA TUDO
+  // ------------------------------------------------------
+  if (!usuario?.is_paid_certification) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#d9d9d6",
+          padding: 40,
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            padding: 40,
+            borderRadius: 16,
+            maxWidth: 500,
+            width: "100%",
+            textAlign: "center",
+            border: "1px solid #ccc",
+          }}
+        >
+          <h2 style={{ marginBottom: 10 }}>🎓 Falta Pouco!</h2>
+          <p>
+            Para acessar a Certificação BCT, finalize o pagamento único de:
+          </p>
+
+          <h1 style={{ color: "#624b43", margin: "20px 0" }}>R$ 17,77</h1>
+
+          <button
+            onClick={gerarPagamento}
+            style={{
+              padding: "14px 22px",
+              background: "#101820",
+              color: "white",
+              borderRadius: 12,
+              cursor: "pointer",
+              fontWeight: 600,
+              width: "100%",
+            }}
+          >
+            Pagar Agora via PIX
+          </button>
+
+          {/* Modal PIX */}
+          {modalPix && pagamento && (
+            <div
+              style={{
+                marginTop: 30,
+                padding: 20,
+                borderRadius: 12,
+                background: "#f5f5f5",
+                border: "1px solid #ccc",
+              }}
+            >
+              <h3>Escaneie o QR Code:</h3>
+
+              <img
+                src={`data:image/png;base64,${pagamento.qrCodeBase64}`}
+                style={{
+                  width: 220,
+                  height: 220,
+                  margin: "20px auto",
+                  display: "block",
+                }}
+              />
+
+              <p style={{ fontSize: 14 }}>Ou copie e cole o código PIX:</p>
+
+              <textarea
+                readOnly
+                value={pagamento.copiaCola}
+                style={{
+                  width: "100%",
+                  height: 90,
+                  padding: 10,
+                  borderRadius: 8,
+                  border: "1px solid #ccc",
+                }}
+              />
+
+              <button
+                onClick={() => navigator.clipboard.writeText(pagamento.copiaCola)}
+                style={{
+                  marginTop: 10,
+                  padding: "10px 16px",
+                  background: "#624b43",
+                  color: "white",
+                  borderRadius: 10,
+                  width: "100%",
+                  fontWeight: 600,
+                }}
+              >
+                Copiar Código PIX
+              </button>
+
+              <p style={{ marginTop: 20, fontSize: 13, color: "#666" }}>
+                Assim que confirmar o pagamento no ASAAS, seu acesso será liberado automaticamente.
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ------------------------------------------------------
+  // 🔥 SE O USUÁRIO JÁ PAGOU, EXIBE O PAINEL NORMAL
+  // ------------------------------------------------------
   return (
     <div
       style={{
@@ -111,7 +224,6 @@ export default function Painel() {
     >
       <div style={{ width: "100%", maxWidth: "900px" }}>
         
-        {/* TÍTULO */}
         <h1 style={{ fontSize: 32, fontWeight: 700, color: "#101820" }}>
           Bem-vindo(a), {usuario?.name} 👋
         </h1>
