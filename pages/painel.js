@@ -14,7 +14,7 @@ export default function Painel() {
   const [modalPix, setModalPix] = useState(false);
 
   // ------------------------------------------------------
-  // Carregar usuário + progresso
+  // Carregar usuário + progresso inicial
   // ------------------------------------------------------
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -51,7 +51,30 @@ export default function Painel() {
   }, []);
 
   // ------------------------------------------------------
-  // PAGAMENTO PIX
+  // 🔥 AUTO-REFRESH (verifica pagamento a cada 3s)
+  // ------------------------------------------------------
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    if (!userId) return;
+
+    const interval = setInterval(async () => {
+      const res = await fetch(`/api/usuario?id=${userId}`);
+      const data = await res.json();
+
+      if (data.ok) {
+        setUsuario(data.usuario);
+
+        if (data.usuario.is_paid_certification) {
+          router.push("/painel");
+        }
+      }
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // ------------------------------------------------------
+  // FUNÇÃO PARA GERAR PAGAMENTO PIX
   // ------------------------------------------------------
   async function gerarPagamento() {
     try {
@@ -105,7 +128,7 @@ export default function Painel() {
   if (loading) return <div style={{ padding: 40 }}>Carregando painel…</div>;
 
   // ------------------------------------------------------
-  // TELA DE PAGAMENTO
+  // TELA DE PAGAMENTO (quando ainda não foi pago)
   // ------------------------------------------------------
   if (!usuario?.is_paid_certification) {
     return (
@@ -116,6 +139,7 @@ export default function Painel() {
           padding: "40px 20px",
           display: "flex",
           justifyContent: "center",
+          alignItems: "flex-start",
         }}
       >
         <div
@@ -151,21 +175,21 @@ export default function Painel() {
           </button>
 
           {modalPix && pagamento && (
-<div
-  style={{
-    marginTop: 30,
-    padding: 20,
-    borderRadius: 16,
-    background: "#ffffff",
-    border: "1px solid #ccc",
-    width: "100%",
-    maxWidth: "460px",
-    marginLeft: "auto",
-    marginRight: "auto",
-    boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
-    boxSizing: "border-box",
-  }}
->
+            <div
+              style={{
+                marginTop: 30,
+                padding: 20,
+                borderRadius: 16,
+                background: "#ffffff",
+                border: "1px solid #ccc",
+                width: "100%",
+                maxWidth: "460px",
+                marginLeft: "auto",
+                marginRight: "auto",
+                boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+                boxSizing: "border-box",
+              }}
+            >
               <h3 style={{ textAlign: "center" }}>Código PIX Copia e Cola:</h3>
 
               <textarea
@@ -222,7 +246,7 @@ export default function Painel() {
   }
 
   // ------------------------------------------------------
-  // PAINEL COMPLETO
+  // PAINEL LIBERADO APÓS PAGAMENTO
   // ------------------------------------------------------
   return (
     <div
@@ -242,6 +266,8 @@ export default function Painel() {
         <p style={{ color: "#333", marginTop: 10 }}>
           Acompanhe sua jornada de certificação.
         </p>
+
+        {/* Aqui você coloca o restante do painel */}
       </div>
     </div>
   );
