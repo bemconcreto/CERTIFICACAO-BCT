@@ -3,22 +3,28 @@ export default async function handler(req, res) {
   console.log("Método:", req.method);
   console.log("Headers:", req.headers);
 
+  // ---- LER O RAW BODY MANUALMENTE ----
   let raw = "";
-  req.on("data", (chunk) => (raw += chunk));
-  req.on("end", () => {
-    console.log("📌 RAW BODY RECEBIDO:", raw);
+  await new Promise((resolve) => {
+    req.on("data", (chunk) => (raw += chunk));
+    req.on("end", resolve);
+  });
 
-    res.status(200).json({
-      ok: true,
-      message: "Debug recebido",
-      rawBody: raw,
-      parsed: (() => {
-        try {
-          return JSON.parse(raw);
-        } catch {
-          return null;
-        }
-      })()
-    });
+  console.log("📌 RAW BODY RECEBIDO:", raw);
+
+  let body = null;
+  try {
+    body = JSON.parse(raw);
+  } catch (e) {
+    console.log("❌ ERRO AO PARSEAR BODY", e);
+  }
+
+  console.log("📌 BODY PARSEADO:", body);
+
+  // TESTE: Retorna só para confirmar
+  return res.status(200).json({
+    ok: true,
+    rawBody: raw,
+    parsed: body,
   });
 }
