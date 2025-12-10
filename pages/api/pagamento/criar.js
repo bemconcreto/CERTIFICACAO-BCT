@@ -1,3 +1,4 @@
+console.log("🔥🔥🔥 TESTE ABSOLUTO 001 — ESTE É O ARQUIVO CORRETO");
 export default async function handler(req, res) {
   console.log("🔥 ROTA /api/pagamento/criar FOI CHAMADA");
   console.log("Método:", req.method);
