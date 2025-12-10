@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     }
 
     // Só processa pagamento confirmado
-    if (event === "PAYMENT_CONFIRMED") {
+    if (event === "PAYMENT_RECEIVED" || event === "PAYMENT_CONFIRMED") {
       const externalId = payment.externalReference; // userId
       const valor = payment.value;
 
