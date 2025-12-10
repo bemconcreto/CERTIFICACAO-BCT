@@ -18,12 +18,15 @@ export default function Painel() {
   // 🔄 Auto-refresh a cada 5 segundos
   // ======================================================
   useEffect(() => {
-    const interval = setInterval(() => atualizarUsuario(), 5000);
+    const interval = setInterval(() => {
+      atualizarUsuario();
+    }, 5000);
+
     return () => clearInterval(interval);
   }, []);
 
   // ======================================================
-  // Carregar ao abrir
+  // Carregar usuário ao abrir
   // ======================================================
   useEffect(() => {
     atualizarUsuario();
@@ -32,7 +35,10 @@ export default function Painel() {
   async function atualizarUsuario() {
     const userId = localStorage.getItem("userId");
 
-    if (!userId) return router.push("/login");
+    if (!userId) {
+      router.push("/login");
+      return;
+    }
 
     try {
       const resUser = await fetch(`/api/usuario?id=${userId}`);
@@ -42,14 +48,16 @@ export default function Painel() {
         const user = dataUser.usuario;
         setUsuario(user);
 
-        // 🔥 Se pagamento foi confirmado → mostrar tela de sucesso
-        if (user.is_paid_certification && modalPix) {
-          setPagamentoConfirmado(true);
-          setModalPix(false);
+        // 🎉 Se pagamento foi confirmado e estava no PIX → mostrar tela de sucesso
+        if (user.is_paid_certification) {
+          if (modalPix) {
+            setPagamentoConfirmado(true);
+            setModalPix(false);
 
-          setTimeout(() => {
-            setPagamentoConfirmado(false);
-          }, 2500);
+            setTimeout(() => {
+              setPagamentoConfirmado(false);
+            }, 2500);
+          }
         }
       }
 
@@ -118,9 +126,9 @@ export default function Painel() {
 
   if (loading) return <div style={{ padding: 40 }}>Carregando painel…</div>;
 
-  // ======================================================================
-  // 🎉 Tela suave de "Pagamento Confirmado"
-  // ======================================================================
+  // ======================================================
+  // 🎉 Tela de pagamento confirmado
+  // ======================================================
   if (pagamentoConfirmado) {
     return (
       <div
@@ -143,7 +151,7 @@ export default function Painel() {
             width: "100%",
             boxShadow: "0px 6px 14px rgba(0,0,0,0.1)",
             border: "1px solid #ccc",
-            animation: "fadeIn 0.5s ease-in-out",
+            transition: "all 0.4s ease",
           }}
         >
           <h2 style={{ fontSize: 28, fontWeight: 700, color: "#2ecc71" }}>
@@ -162,9 +170,9 @@ export default function Painel() {
     );
   }
 
-  // ======================================================================
-  // 🟡 Tela do PIX
-  // ======================================================================
+  // ======================================================
+  // TELA DO PIX
+  // ======================================================
   if (!usuario?.is_paid_certification) {
     return (
       <div
@@ -188,8 +196,8 @@ export default function Painel() {
             boxShadow: "0px 6px 14px rgba(0,0,0,0.08)",
           }}
         >
-          <h2>🎓 Falta Pouco!</h2>
-          <p>Finalize o pagamento único:</p>
+          <h2 style={{ marginBottom: 10 }}>🎓 Falta Pouco!</h2>
+          <p>Para acessar a Certificação BCT, finalize o pagamento único:</p>
 
           <h1 style={{ color: "#624b43", margin: "20px 0" }}>R$ 17,77</h1>
 
@@ -213,12 +221,14 @@ export default function Painel() {
     marginTop: 30,
     padding: 20,
     borderRadius: 16,
-    background: "white",
+    background: "#ffffff",
     border: "1px solid #ccc",
+    width: "100%",
     maxWidth: "460px",
     marginLeft: "auto",
     marginRight: "auto",
     boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+    boxSizing: "border-box",
   }}
 >
               <h3 style={{ textAlign: "center" }}>Código PIX Copia e Cola:</h3>
@@ -272,9 +282,9 @@ export default function Painel() {
     );
   }
 
-  // ======================================================================
-  // 🎓 PAINEL COMPLETO (após pagamento)
-  // ======================================================================
+  // ======================================================
+  // 🎓 PAINEL COMPLETO
+  // ======================================================
   return (
     <div
       style={{
@@ -285,16 +295,16 @@ export default function Painel() {
         justifyContent: "center",
       }}
     >
-      <div style={{ maxWidth: 900, width: "100%" }}>
-        <h1 style={{ fontSize: 32, fontWeight: 700 }}>
+      <div style={{ width: "100%", maxWidth: "900px" }}>
+        <h1 style={{ fontSize: 32, fontWeight: 700, color: "#101820" }}>
           Bem-vindo(a), {usuario?.name} 👋
         </h1>
 
-        <p style={{ marginBottom: 30 }}>
-          Acompanhe sua jornada de certificação:
+        <p style={{ color: "#333", marginBottom: 30 }}>
+          Acompanhe sua jornada de certificação.
         </p>
 
-        {/* Barra de Progresso */}
+        {/* Barra de progresso */}
         <div
           style={{
             background: "white",
@@ -304,7 +314,7 @@ export default function Painel() {
             marginBottom: 40,
           }}
         >
-          <h2>Progresso da Certificação</h2>
+          <h2 style={{ marginBottom: 20 }}>Progresso da Certificação</h2>
 
           <div
             style={{
@@ -313,7 +323,6 @@ export default function Painel() {
               background: "#eee",
               borderRadius: 20,
               overflow: "hidden",
-              marginTop: 10,
               marginBottom: 20,
             }}
           >
@@ -346,7 +355,7 @@ export default function Painel() {
           </button>
         </div>
 
-        {/* Lista de Módulos */}
+        {/* Lista de módulos */}
         {modules.map((mod) => {
           const completed = progresso.includes(mod.id);
           const locked = !completed && mod.id > atual;
@@ -388,6 +397,7 @@ export default function Painel() {
                     : "#624b43",
                   color: "white",
                   borderRadius: 10,
+                  cursor: locked ? "not-allowed" : "pointer",
                 }}
               >
                 {completed ? "Revisar" : "Acessar"}
