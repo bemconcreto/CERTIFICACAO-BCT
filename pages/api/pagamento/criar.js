@@ -18,7 +18,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    // 1️⃣ Criar pagamento PIX
+    // 1️⃣ Criar cobrança PIX
     const createPayment = await fetch("https://www.asaas.com/api/v3/payments", {
       method: "POST",
       headers: {
@@ -42,29 +42,31 @@ export default async function handler(req, res) {
 
     const paymentId = paymentData.id;
 
-    // 2️⃣ Obter o código PIX (payload)
+    // 2️⃣ Buscar QR Code PIX
     const qrRes = await fetch(
       `https://www.asaas.com/api/v3/payments/${paymentId}/pixQrCode`,
-      { headers: { access_token: API_KEY } }
+      {
+        method: "GET",
+        headers: { access_token: API_KEY },
+      }
     );
 
     const qrData = await qrRes.json();
-
     console.log("🔍 PIX GERADO:", qrData);
 
     if (!qrData?.payload) {
       return res.status(400).json({
         ok: false,
-        error: "ASAAS não retornou payload PIX",
+        error: "Asaas não retornou payload do PIX",
       });
     }
 
-    // 3️⃣ Retornar somente O PIX COPY/PASTE
-return res.status(200).json({
-  success: true,
-  chargeId: paymentId,
-  copiaCola: qrData.payload,
-});
+    // 3️⃣ Resposta FINAL — compatível 100% com SEU FRONT
+    return res.status(200).json({
+      ok: true,
+      pixCopyPaste: qrData.payload,   // 👈 exatamente o que seu front lê
+      charge_id: paymentId
+    });
 
   } catch (err) {
     console.log("❌ ERRO AO GERAR PIX:", err);
