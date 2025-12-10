@@ -10,12 +10,11 @@ export default function Painel() {
   const [progresso, setProgresso] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // PAGAMENTO (PIX)
   const [pagamento, setPagamento] = useState(null);
   const [modalPix, setModalPix] = useState(false);
 
   // ------------------------------------------------------
-  // 🔹 Carregar usuário + progresso real
+  // Carregar usuário + progresso
   // ------------------------------------------------------
   useEffect(() => {
     const userId = localStorage.getItem("userId");
@@ -41,18 +40,18 @@ export default function Painel() {
         const dataProg = await resProg.json();
         if (dataProg.ok) setProgresso(dataProg.modulos);
 
-        setLoading(false);
       } catch (err) {
         console.log("Erro carregar painel:", err);
-        setLoading(false);
       }
+
+      setLoading(false);
     }
 
     carregar();
   }, []);
 
   // ------------------------------------------------------
-  // 🔥 FUNÇÃO PARA CRIAR PAGAMENTO ASAAS
+  // PAGAMENTO PIX
   // ------------------------------------------------------
   async function gerarPagamento() {
     try {
@@ -72,18 +71,19 @@ export default function Painel() {
       const data = await res.json();
       console.log("RESPOSTA FRONT:", data);
 
-      if (!data.success) {
+      if (!data.ok) {
         alert("Erro ao gerar pagamento.");
         return;
       }
 
-      // 🔥 AQUI ESTÁ A CORREÇÃO:
+      // Atualiza estado com PIX copia/cola
       setPagamento({
-        pixCopyPaste: data.payload,   // CAMPO CORRETO
-        chargeId: data.chargeId || null,
+        pixCopyPaste: data.pixCopyPaste,
+        chargeId: data.charge_id,
       });
 
       setModalPix(true);
+
     } catch (err) {
       console.log("Erro pagamento:", err);
       alert("Erro interno ao criar pagamento.");
@@ -91,7 +91,7 @@ export default function Painel() {
   }
 
   // ------------------------------------------------------
-  // 🔹 Calcular módulo atual
+  // Calcular módulo atual
   // ------------------------------------------------------
   function moduloAtual() {
     for (let i = 1; i <= totalModulos; i++) {
@@ -106,7 +106,7 @@ export default function Painel() {
   if (loading) return <div style={{ padding: 40 }}>Carregando painel…</div>;
 
   // ------------------------------------------------------
-  // 🔥 TELA DE PAGAMENTO
+  // TELA DE PAGAMENTO
   // ------------------------------------------------------
   if (!usuario?.is_paid_certification) {
     return (
@@ -176,9 +176,10 @@ export default function Painel() {
               />
 
               <button
-                onClick={() =>
-                  navigator.clipboard.writeText(pagamento.pixCopyPaste)
-                }
+                onClick={() => {
+                  navigator.clipboard.writeText(pagamento.pixCopyPaste);
+                  alert("Código PIX copiado!");
+                }}
                 style={{
                   marginTop: 10,
                   padding: "10px 16px",
@@ -204,7 +205,7 @@ export default function Painel() {
   }
 
   // ------------------------------------------------------
-  // 🔥 PAINEL COMPLETO
+  // PAINEL COMPLETO
   // ------------------------------------------------------
   return (
     <div
@@ -221,130 +222,7 @@ export default function Painel() {
           Bem-vindo(a), {usuario?.name} 👋
         </h1>
 
-        {usuario?.is_certified && (
-          <div
-            style={{
-              display: "inline-block",
-              background: "#2ecc71",
-              color: "white",
-              padding: "6px 14px",
-              borderRadius: "8px",
-              fontWeight: 600,
-              marginTop: 10,
-              marginBottom: 20,
-            }}
-          >
-            ✔ Consultor Certificado — 4% Liberado
-          </div>
-        )}
-
-        <p style={{ color: "#333", marginBottom: 30 }}>
-          Acompanhe sua jornada de certificação.
-        </p>
-
-        <div
-          style={{
-            background: "white",
-            padding: "35px",
-            borderRadius: "16px",
-            border: "1px solid #ccc",
-            marginBottom: "40px",
-            boxShadow: "0px 6px 12px rgba(0,0,0,0.1)",
-          }}
-        >
-          <h2 style={{ marginBottom: 20, color: "#101820" }}>
-            Progresso da Certificação
-          </h2>
-
-          <div
-            style={{
-              width: "100%",
-              height: "18px",
-              background: "#eee",
-              borderRadius: "20px",
-              overflow: "hidden",
-              marginBottom: 20,
-            }}
-          >
-            <div
-              style={{
-                width: `${percent}%`,
-                height: "100%",
-                background: "#624b43",
-                transition: "0.3s",
-              }}
-            />
-          </div>
-
-          <button
-            onClick={() =>
-              atual === "concluido"
-                ? router.push("/certificado")
-                : router.push(`/modulos/${atual}`)
-            }
-            style={{
-              padding: "14px 22px",
-              background: "#101820",
-              color: "white",
-              borderRadius: "12px",
-              cursor: "pointer",
-              fontWeight: 600,
-            }}
-          >
-            {atual === "concluido"
-              ? "Emitir Certificado"
-              : `Continuar no Módulo ${atual}`}
-          </button>
-        </div>
-
-        {modules.map((mod) => {
-          const completed = progresso.includes(mod.id);
-          const locked = !completed && mod.id > atual;
-
-          return (
-            <div
-              key={mod.id}
-              style={{
-                background: "white",
-                padding: "22px",
-                marginBottom: "14px",
-                borderRadius: "12px",
-                border: "1px solid #ccc",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                opacity: locked ? 0.4 : 1,
-              }}
-            >
-              <div>
-                <strong>{mod.title}</strong>
-                <p style={{ margin: 0 }}>
-                  {completed && "✔ Concluído"}
-                  {!completed && !locked && "▶ Disponível"}
-                  {locked && "🔒 Bloqueado"}
-                </p>
-              </div>
-
-              <button
-                disabled={locked}
-                onClick={() => router.push(`/modulos/${mod.id}`)}
-                style={{
-                  padding: "10px 18px",
-                  background: locked
-                    ? "#bbb"
-                    : completed
-                    ? "#2ecc71"
-                    : "#624b43",
-                  color: "white",
-                  borderRadius: "10px",
-                  cursor: locked ? "not-allowed" : "pointer",
-                }}
-              >
-                {completed ? "Revisar" : "Acessar"}
-              </button>
-            </div>
-          );
-        })}
+        {/* Conteúdo do painel normal */}
       </div>
     </div>
   );
