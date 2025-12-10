@@ -1,31 +1,22 @@
-console.log("🔥🔥🔥 TESTE ABSOLUTO 001 — ESTE É O ARQUIVO CORRETO");
 export default async function handler(req, res) {
-  console.log("🔥 ROTA /api/pagamento/criar FOI CHAMADA");
-  console.log("Método:", req.method);
-  console.log("Headers:", req.headers);
+  console.log("🔥🔥🔥 TESTE ABSOLUTO 002 — Handler executando");
 
-  // ---- LER O RAW BODY MANUALMENTE ----
-  let raw = "";
-  await new Promise((resolve) => {
-    req.on("data", (chunk) => (raw += chunk));
-    req.on("end", resolve);
-  });
-
-  console.log("📌 RAW BODY RECEBIDO:", raw);
-
-  let body = null;
-  try {
-    body = JSON.parse(raw);
-  } catch (e) {
-    console.log("❌ ERRO AO PARSEAR BODY", e);
+  if (req.method !== "POST") {
+    return res.status(405).json({ ok: false, error: "Método não permitido" });
   }
 
-  console.log("📌 BODY PARSEADO:", body);
+  console.log("Headers:", req.headers);
+  console.log("👉 Body recebido:", req.body);
 
-  // TESTE: Retorna só para confirmar
+  const { userId, email, name } = req.body || {};
+
+  if (!userId || !email || !name) {
+    return res.status(400).json({ ok: false, error: "Body incompleto" });
+  }
+
   return res.status(200).json({
     ok: true,
-    rawBody: raw,
-    parsed: body,
+    message: "Body recebido com sucesso!",
+    body: req.body,
   });
 }
