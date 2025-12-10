@@ -10,7 +10,7 @@ export default function Painel() {
   const [progresso, setProgresso] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔥 PAGAMENTO
+  // PAGAMENTO (PIX)
   const [pagamento, setPagamento] = useState(null);
   const [modalPix, setModalPix] = useState(false);
 
@@ -54,7 +54,7 @@ export default function Painel() {
   }, []);
 
   // ------------------------------------------------------
-  // 🔥 FUNÇÃO PARA CRIAR PAGAMENTO ASAAS
+  // 🔥 FUNÇÃO PARA CRIAR PAGAMENTO NO BACKEND (ASAAS)
   // ------------------------------------------------------
   async function gerarPagamento() {
     try {
@@ -73,17 +73,16 @@ export default function Painel() {
 
       const data = await res.json();
 
-      if (!data.ok) {
+      if (!data.success) {
         console.log("Erro ao criar pagamento:", data);
         alert("Erro ao gerar pagamento.");
         return;
       }
 
-      // Guarda dados do pagamento (qrCodeImage / pixCopyPaste)
+      // ✔ Guarda somente o PIX Copia e Cola
       setPagamento({
-        qrCodeImage: data.qrCodeImage,
-        pixCopyPaste: data.pixCopyPaste,
-        chargeId: data.charge_id,
+        pixCopyPaste: data.copiaCola,
+        chargeId: data.chargeId || null,
       });
 
       setModalPix(true);
@@ -111,7 +110,7 @@ export default function Painel() {
   }
 
   // ------------------------------------------------------
-  // 🔥 SE NÃO PAGOU, BLOQUEIA TUDO
+  // 🔥 SE NÃO PAGOU, MOSTRA TELA DE PAGAMENTO
   // ------------------------------------------------------
   if (!usuario?.is_paid_certification) {
     return (
@@ -166,29 +165,18 @@ export default function Painel() {
                 border: "1px solid #ccc",
               }}
             >
-              <h3>Escaneie o QR Code:</h3>
-
-              <img
-                src={pagamento.qrCodeImage}
-                style={{
-                  width: 220,
-                  height: 220,
-                  margin: "20px auto",
-                  display: "block",
-                }}
-              />
-
-              <p style={{ fontSize: 14 }}>Ou copie e cole o código PIX:</p>
+              <h3>Código PIX Copia e Cola:</h3>
 
               <textarea
                 readOnly
                 value={pagamento.pixCopyPaste}
                 style={{
                   width: "100%",
-                  height: 90,
+                  height: 120,
                   padding: 10,
                   borderRadius: 8,
                   border: "1px solid #ccc",
+                  fontSize: 14,
                 }}
               />
 
@@ -221,7 +209,7 @@ export default function Painel() {
   }
 
   // ------------------------------------------------------
-  // 🔥 SE O USUÁRIO JÁ PAGOU, EXIBE O PAINEL NORMAL
+  // 🔥 SE O USUÁRIO JÁ PAGOU — PAINEL COMPLETO
   // ------------------------------------------------------
   return (
     <div
