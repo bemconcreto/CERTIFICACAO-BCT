@@ -79,7 +79,7 @@ export default function Painel() {
 
       // Guarda somente o PIX Copia e Cola
       setPagamento({
-        pixCopyPaste: data.copiaCola,
+       pixCopyPaste: data.payload,
         chargeId: data.chargeId || null,
       });
 
