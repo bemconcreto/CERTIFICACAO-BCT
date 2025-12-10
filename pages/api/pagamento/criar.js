@@ -18,32 +18,37 @@ export default async function handler(req, res) {
   }
 
   try {
+    // -------------------------------------------------------
     // 1️⃣ Criar pagamento PIX
+    // -------------------------------------------------------
     const createPayment = await fetch("https://www.asaas.com/api/v3/payments", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         access_token: API_KEY,
       },
-body: JSON.stringify({
-  customer: CUSTOMER_ID,
-  billingType: "PIX",
-  value: 17.77,
-  dueDate: new Date().toISOString().slice(0, 10),
-  externalReference: req.body.userId, // 🔥 ESSENCIAL !!!
-}),
+      body: JSON.stringify({
+        customer: CUSTOMER_ID,
+        billingType: "PIX",
+        value: 17.77,
+        dueDate: new Date().toISOString().slice(0, 10),
+        externalReference: req.body.userId, // ⭐ ESSENCIAL!
+      }),
     });
 
     const paymentData = await createPayment.json();
-    console.log("🔍 RESPOSTA ASAAS:", paymentData);
+    console.log("🔍 RESPOSTA ASAAS (criar pagamento):", paymentData);
 
     if (paymentData?.errors) {
+      console.log("❌ Erro ASAAS:", paymentData.errors);
       return res.status(400).json({ ok: false, error: paymentData.errors });
     }
 
     const paymentId = paymentData.id;
 
-    // 2️⃣ Obter PIX copia e cola
+    // -------------------------------------------------------
+    // 2️⃣ Obter código PIX (copy/paste)
+    // -------------------------------------------------------
     const qrRes = await fetch(
       `https://www.asaas.com/api/v3/payments/${paymentId}/pixQrCode`,
       { headers: { access_token: API_KEY } }
@@ -53,13 +58,16 @@ body: JSON.stringify({
     console.log("🔍 PIX GERADO:", qrData);
 
     if (!qrData?.payload) {
+      console.log("❌ ASAAS não retornou payload PIX");
       return res.status(400).json({
         ok: false,
         error: "ASAAS não retornou payload PIX",
       });
     }
 
-    // 3️⃣ Retornar para o front
+    // -------------------------------------------------------
+    // 3️⃣ Retornar ao frontend
+    // -------------------------------------------------------
     return res.status(200).json({
       ok: true,
       pixCopyPaste: qrData.payload,
