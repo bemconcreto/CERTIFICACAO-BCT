@@ -25,12 +25,13 @@ export default async function handler(req, res) {
         "Content-Type": "application/json",
         access_token: API_KEY,
       },
-      body: JSON.stringify({
-        customer: CUSTOMER_ID,
-        billingType: "PIX",
-        value: 17.77,
-        dueDate: new Date().toISOString().slice(0, 10),
-      }),
+body: JSON.stringify({
+  customer: CUSTOMER_ID,
+  billingType: "PIX",
+  value: 17.77,
+  dueDate: new Date().toISOString().slice(0, 10),
+  externalReference: req.body.userId, // 🔥 ESSENCIAL !!!
+}),
     });
 
     const paymentData = await createPayment.json();

@@ -76,7 +76,6 @@ export default function Painel() {
         return;
       }
 
-      // Atualiza estado com PIX copia/cola
       setPagamento({
         pixCopyPaste: data.pixCopyPaste,
         chargeId: data.charge_id,
@@ -110,28 +109,27 @@ export default function Painel() {
   // ------------------------------------------------------
   if (!usuario?.is_paid_certification) {
     return (
-<div
-  style={{
-    minHeight: "100vh",
-    background: "#d9d9d6",
-    padding: "40px 20px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "flex-start",
-  }}
->
-  <div
-    style={{
-      background: "white",
-      padding: "40px 30px",
-      borderRadius: 20,
-      maxWidth: "520px",
-      width: "100%",
-      textAlign: "center",
-      border: "1px solid #ccc",
-      boxShadow: "0px 6px 14px rgba(0,0,0,0.08)",
-    }}
-  >
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#d9d9d6",
+          padding: "40px 20px",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            background: "white",
+            padding: "40px 30px",
+            borderRadius: 20,
+            maxWidth: "520px",
+            width: "100%",
+            textAlign: "center",
+            border: "1px solid #ccc",
+            boxShadow: "0px 6px 14px rgba(0,0,0,0.08)",
+          }}
+        >
           <h2 style={{ marginBottom: 10 }}>🎓 Falta Pouco!</h2>
           <p>Para acessar a Certificação BCT, finalize o pagamento único:</p>
 
@@ -153,32 +151,37 @@ export default function Painel() {
           </button>
 
           {modalPix && pagamento && (
-<div
-  style={{
-    marginTop: 30,
-    padding: 20,
-    borderRadius: 16,
-    background: "#ffffff",
-    border: "1px solid #ccc",
-    maxWidth: "480px",
-    width: "100%",
-    marginLeft: "auto",
-    marginRight: "auto",
-    boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
-  }}
->
-              <h3>Código PIX Copia e Cola:</h3>
+            <div
+              style={{
+                marginTop: 30,
+                padding: 20,
+                borderRadius: 16,
+                background: "#ffffff",
+                border: "1px solid #ccc",
+                maxWidth: "480px",
+                width: "100%",
+                marginLeft: "auto",
+                marginRight: "auto",
+                boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
+              }}
+            >
+              <h3 style={{ textAlign: "center" }}>Código PIX Copia e Cola:</h3>
 
               <textarea
                 readOnly
+                wrap="soft"
                 value={pagamento.pixCopyPaste}
                 style={{
                   width: "100%",
+                  maxWidth: "100%",
                   height: 140,
                   padding: 10,
                   borderRadius: 8,
                   border: "1px solid #ccc",
                   fontSize: 14,
+                  overflowWrap: "break-word",
+                  whiteSpace: "pre-wrap",
+                  boxSizing: "border-box",
                 }}
               />
 
@@ -188,8 +191,8 @@ export default function Painel() {
                   alert("Código PIX copiado!");
                 }}
                 style={{
-                  marginTop: 10,
-                  padding: "10px 16px",
+                  marginTop: 12,
+                  padding: "12px 16px",
                   background: "#624b43",
                   color: "white",
                   borderRadius: 10,
@@ -200,9 +203,15 @@ export default function Painel() {
                 Copiar Código PIX
               </button>
 
-              <p style={{ marginTop: 20, fontSize: 13, color: "#666" }}>
-                Assim que o pagamento for confirmado, seu acesso será
-                liberado automaticamente.
+              <p
+                style={{
+                  marginTop: 20,
+                  fontSize: 13,
+                  color: "#666",
+                  textAlign: "center",
+                }}
+              >
+                Assim que o pagamento for confirmado, seu acesso será liberado automaticamente.
               </p>
             </div>
           )}
@@ -229,7 +238,9 @@ export default function Painel() {
           Bem-vindo(a), {usuario?.name} 👋
         </h1>
 
-        {/* Conteúdo do painel normal */}
+        <p style={{ color: "#333", marginTop: 10 }}>
+          Acompanhe sua jornada de certificação.
+        </p>
       </div>
     </div>
   );

@@ -1,38 +1,62 @@
-import pool from "../../../lib/db";
-import { generateCode } from "../../../lib/hmac";
-import QRCode from "qrcode";
+// pages/api/webhook/asaas.js
+
+import db from "../../../lib/db";
+
+export const config = {
+  api: {
+    bodyParser: false, // ASAAS envia RAW body
+  },
+};
 
 export default async function handler(req, res) {
+  if (req.method !== "POST") return res.status(405).end();
+
   try {
-    const payload = req.body;
+    let body = "";
 
-    const status = payload?.event || payload?.status;
-    const paymentId = payload?.payment?.id;
-    const userId = payload?.payment?.metadata?.user_id;
-    const cpf = payload?.payment?.metadata?.cpf;
+    await new Promise((resolve) => {
+      req.on("data", (chunk) => {
+        body += chunk;
+      });
+      req.on("end", resolve);
+    });
 
-    if (!paymentId) return res.status(200).json({ ok: true });
+    const data = JSON.parse(body);
 
-    // pagamento confirmado
-    if (status === "PAYMENT_CONFIRMED") {
-      // cria inscrição
-      const startedAt = new Date();
-      const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
+    console.log("📩 Webhook ASAAS recebido:", data);
 
-      await pool.query(
-        `
-          INSERT INTO inscriptions (user_id, started_at, expires_at, status, payment_id)
-          VALUES ($1,$2,$3,'active',$4)
-        `,
-        [userId, startedAt, expiresAt, paymentId]
-      );
+    const event = data.event;
+    const payment = data.payment;
 
-      return res.json({ ok: true });
+    if (!payment) {
+      console.log("❌ Sem pagamento no webhook");
+      return res.status(400).end();
     }
 
-    return res.status(200).json({ ok: true });
-  } catch (e) {
-    console.log("Erro webhook:", e);
-    return res.status(500).json({ ok: false });
+    // Só processa pagamento confirmado
+    if (event === "PAYMENT_CONFIRMED") {
+      const externalId = payment.externalReference; // userId
+      const valor = payment.value;
+
+      console.log("🎉 Pagamento confirmado para user:", externalId);
+
+      if (!externalId) {
+        console.log("❌ Sem userId no externalReference");
+        return res.status(400).end();
+      }
+
+      // Atualiza no banco o pagamento:
+      await db.query(
+        "UPDATE users SET is_paid_certification = true WHERE id = $1",
+        [externalId]
+      );
+
+      console.log("✔ Usuário liberado no sistema:", externalId);
+    }
+
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.log("❌ Erro no webhook:", err);
+    res.status(500).send("Erro interno");
   }
 }
