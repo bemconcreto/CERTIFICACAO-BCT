@@ -2,14 +2,10 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-// 🔒 Proteção extra contra env quebrada
-const supabase =
-  supabaseUrl && supabaseKey
-    ? createClient(supabaseUrl, supabaseKey)
-    : null;
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export default NextAuth({
   providers: [
@@ -29,27 +25,42 @@ export default NextAuth({
   callbacks: {
     async signIn({ user }) {
       try {
-        if (!supabase) return true;
-
         const email = user.email?.toLowerCase();
         if (!email) return true;
 
-        // 🔹 garante usuário no Supabase
+        // 1️⃣ Cria ou atualiza usuário
         await supabase.from("users").upsert(
           {
             email,
             name: user.name,
             avatar: user.image,
+            is_email_verified: true,
           },
           { onConflict: "email" }
         );
 
         return true;
       } catch (err) {
-        console.error("Erro no signIn:", err);
-        // 🚨 NUNCA bloqueia login
-        return true;
+        console.error("NextAuth signIn error:", err);
+        return true; // 🚨 nunca bloqueia login
       }
+    },
+
+    async session({ session }) {
+      // 2️⃣ Busca o ID NORMAL do usuário
+      if (session.user?.email) {
+        const { data } = await supabase
+          .from("users")
+          .select("id")
+          .eq("email", session.user.email.toLowerCase())
+          .single();
+
+        if (data?.id) {
+          session.user.id = data.id; // 🔥 ID REAL
+        }
+      }
+
+      return session;
     },
   },
 });
