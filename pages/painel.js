@@ -29,45 +29,50 @@ export default function Painel() {
     atualizarUsuario();
   }, []);
 
-  async function atualizarUsuario() {
-    try {
-      const email = localStorage.getItem("email");
+async function atualizarUsuario() {
+  try {
+    const email = localStorage.getItem("email");
 
-      if (!email) {
-        router.replace("/cadastro");
-        return;
-      }
-
-      // 🔹 USUÁRIO
-      const resUser = await fetch(`/api/usuario?email=${email}`);
-      const dataUser = await resUser.json();
-
-      if (dataUser.ok) {
-        const user = dataUser.usuario;
-        setUsuario(user);
-
-        if (user.is_paid_certification && modalPix) {
-          setPagamentoConfirmado(true);
-          setModalPix(false);
-          setTimeout(() => setPagamentoConfirmado(false), 2500);
-        }
-      }
-
-      // 🔹 PROGRESSO
-      const resProg = await fetch(
-        `/api/modulos/progresso?email=${email}`
-      );
-      const dataProg = await resProg.json();
-
-      if (dataProg.ok) {
-        setProgresso(dataProg.modulos);
-      }
-    } catch (err) {
-      console.error("Erro atualizar painel:", err);
+    if (!email) {
+      router.replace("/cadastro");
+      return;
     }
 
-    setLoading(false);
+    // 1️⃣ BUSCAR USUÁRIO
+    const resUser = await fetch(`/api/usuario?email=${email}`);
+    const dataUser = await resUser.json();
+
+    if (!dataUser.ok || !dataUser.usuario?.id) {
+      console.error("Usuário inválido");
+      return;
+    }
+
+    const user = dataUser.usuario;
+    setUsuario(user);
+
+    // 2️⃣ BUSCAR PROGRESSO USANDO userId (CORRETO)
+    const resProg = await fetch(
+      `/api/modulos/progresso?userId=${user.id}`
+    );
+    const dataProg = await resProg.json();
+
+    if (dataProg.ok) {
+      setProgresso(dataProg.modulos);
+    }
+
+    // 3️⃣ Pagamento confirmado
+    if (user.is_paid_certification && modalPix) {
+      setPagamentoConfirmado(true);
+      setModalPix(false);
+      setTimeout(() => setPagamentoConfirmado(false), 2500);
+    }
+
+  } catch (err) {
+    console.error("Erro atualizar painel:", err);
   }
+
+  setLoading(false);
+}
 
   // ======================================================
   // Criar pagamento PIX
