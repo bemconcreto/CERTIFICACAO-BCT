@@ -3,10 +3,6 @@ import { useRouter } from "next/router";
 export default function Home() {
   const router = useRouter();
 
-  function irParaCadastro() {
-    router.push("/cadastro");
-  }
-
   return (
     <div
       style={{
@@ -54,34 +50,15 @@ export default function Home() {
         </p>
 
         <button
-          onClick={irParaCadastro}
-          style={{
-            background: "#101820",
-            color: "white",
-            padding: "14px 25px",
-            borderRadius: "10px",
-            border: "none",
-            marginBottom: 16,
-            fontSize: 16,
-            cursor: "pointer",
-            width: "100%",
-          }}
+          onClick={() => router.push("/cadastro")}
+          style={btnPrimary}
         >
           Iniciar Certificação
         </button>
 
         <button
-          onClick={irParaCadastro}
-          style={{
-            background: "#624b43",
-            color: "white",
-            padding: "14px 25px",
-            borderRadius: "10px",
-            border: "none",
-            fontSize: 16,
-            cursor: "pointer",
-            width: "100%",
-          }}
+          onClick={() => router.push("/login")}
+          style={btnSecondary}
         >
           Continuar Certificação
         </button>
@@ -89,3 +66,26 @@ export default function Home() {
     </div>
   );
 }
+
+const btnPrimary = {
+  background: "#101820",
+  color: "white",
+  padding: "14px 25px",
+  borderRadius: "10px",
+  border: "none",
+  marginBottom: 16,
+  fontSize: 16,
+  cursor: "pointer",
+  width: "100%",
+};
+
+const btnSecondary = {
+  background: "#624b43",
+  color: "white",
+  padding: "14px 25px",
+  borderRadius: "10px",
+  border: "none",
+  fontSize: 16,
+  cursor: "pointer",
+  width: "100%",
+};
