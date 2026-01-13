@@ -44,21 +44,25 @@ export default function Cadastro() {
           Faça login com Google para iniciar sua certificação.
         </p>
 
-        <button
-          onClick={() => signIn("google")}
-          style={{
-            background: "#101820",
-            color: "white",
-            padding: "14px",
-            borderRadius: "10px",
-            border: "none",
-            fontSize: 16,
-            cursor: "pointer",
-            width: "100%",
-          }}
-        >
-          Continuar com Google
-        </button>
+<button
+  onClick={() =>
+    signIn("google", {
+      callbackUrl: "/painel",
+    })
+  }
+  style={{
+    background: "#101820",
+    color: "white",
+    padding: "14px",
+    borderRadius: "10px",
+    border: "none",
+    fontSize: 16,
+    cursor: "pointer",
+    width: "100%",
+  }}
+>
+  Continuar com Google
+</button>
       </div>
     </div>
   );

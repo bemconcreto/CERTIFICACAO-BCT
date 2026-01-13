@@ -9,17 +9,12 @@ export default NextAuth({
     }),
   ],
 
+  pages: {
+    signIn: "/cadastro",
+  },
+
+  // 🚫 REMOVE redirect callback (ESSENCIAL)
+  // Deixe o NextAuth usar o callbackUrl corretamente
+
   secret: process.env.NEXTAUTH_SECRET,
-
-  session: {
-    strategy: "jwt",
-  },
-
-  callbacks: {
-    async redirect({ url, baseUrl }) {
-      // 🔥 deixa o fluxo normal do NextAuth
-      if (url.startsWith(baseUrl)) return url;
-      return baseUrl;
-    },
-  },
 });
