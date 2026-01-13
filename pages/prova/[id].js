@@ -19,15 +19,21 @@ export default function Prova() {
     }
   }, [id]);
 
-  // 🔹 Salva progresso quando passar
+// 🔹 Salva progresso quando passar
 useEffect(() => {
   async function salvarProgresso() {
     if (score === 100) {
-      const userId = localStorage.getItem("userId");
+      const email = localStorage.getItem("email");
 
-      await concluirModulo(userId, Number(id)); 
+      if (!email) {
+        alert("Sessão expirada. Faça login novamente.");
+        return router.replace("/login");
+      }
+
+      await concluirModulo(email, Number(id));
     }
   }
+
   salvarProgresso();
 }, [score, id]);
   // 🔹 Cria certificado automaticamente quando conclui o módulo 11
