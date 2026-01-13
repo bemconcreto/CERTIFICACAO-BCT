@@ -1,71 +1,51 @@
-// pages/api/usuario.js
-import pool from "../../lib/db";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export default async function handler(req, res) {
+  const { email } = req.query;
+
+  if (!email) {
+    return res.status(400).json({ ok: false, error: "Email obrigatório" });
+  }
+
   try {
-    const { id } = req.query;
+    // 1️⃣ Tenta buscar o usuário
+    const { data: user, error: findError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("email", email)
+      .single();
 
-    console.log("📡 [API] /api/usuario — ID recebido:", id);
-
-    if (!id) {
-      console.log("❌ ID não fornecido");
-      return res.status(400).json({ ok: false, error: "ID não fornecido." });
+    // 2️⃣ Se encontrou → retorna
+    if (user) {
+      return res.json({ ok: true, usuario: user });
     }
 
-    if (!process.env.DATABASE_URL) {
-      console.log("⚠️ AVISO: DATABASE_URL NÃO ENCONTRADA nas variáveis de ambiente.");
+    // 3️⃣ Se NÃO encontrou → cria usuário REAL
+    const { data: newUser, error: insertError } = await supabase
+      .from("users")
+      .insert({
+        email,
+        name: email.split("@")[0], // fallback
+        is_certified: false,
+        is_paid_certification: false,
+        is_email_verified: true, // Google já validou
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      console.error("Erro criando usuário:", insertError);
+      return res.status(500).json({ ok: false });
     }
 
-    // ------------------------------------------------------
-    // 🔍 CONSULTA COMPLETA DO USUÁRIO (com is_paid_certification)
-    // ------------------------------------------------------
-    const result = await pool.query(
-      `
-        SELECT 
-          id,
-          name,
-          cpf,
-          email,
-          consultor_id,
-          is_certified,
-          is_paid_certification,
-          created_at
-        FROM users
-        WHERE id = $1
-      `,
-      [id]
-    );
-
-    console.log("📦 Resultado SELECT — rows:", result.rows.length);
-
-    if (result.rows.length === 0) {
-      console.log("❌ Usuário não encontrado no banco.");
-      return res.status(404).json({
-        ok: false,
-        error: "Usuário não encontrado."
-      });
-    }
-
-    const usuario = result.rows[0];
-    console.log("👤 Usuário carregado:", usuario);
-
-    // ------------------------------------------------------
-    // ✔ RETORNAR PARA O FRONTEND
-    // ------------------------------------------------------
-    return res.json({
-      ok: true,
-      usuario
-    });
-
+    return res.json({ ok: true, usuario: newUser });
   } catch (err) {
-    console.error("❌ Erro no endpoint /api/usuario:", err);
-
-    const isDev = process.env.NODE_ENV !== "production";
-
-    return res.status(500).json({
-      ok: false,
-      error: "Erro interno.",
-      details: isDev ? err.message : undefined
-    });
+    console.error("Erro /api/usuario:", err);
+    return res.status(500).json({ ok: false });
   }
 }
