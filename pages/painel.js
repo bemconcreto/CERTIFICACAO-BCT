@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { useSession } from "next-auth/react";
 import { modules } from "../lib/modules";
 
 export default function Painel() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const totalModulos = modules.length;
 
   const [usuario, setUsuario] = useState(null);
   const [progresso, setProgresso] = useState([]);
@@ -15,79 +14,82 @@ export default function Painel() {
   const [modalPix, setModalPix] = useState(false);
   const [pagamentoConfirmado, setPagamentoConfirmado] = useState(false);
 
-  const totalModulos = modules.length;
-
-  /* ================= PROTEÇÃO ================= */
+  // ======================================================
+  // 🔄 Auto-refresh a cada 5 segundos
+  // ======================================================
   useEffect(() => {
-    if (status === "unauthenticated") {
-      router.replace("/login");
-    }
-  }, [status, router]);
-
-  if (status === "loading") {
-    return <div style={{ padding: 40 }}>Carregando sessão…</div>;
-  }
-
-  if (!session?.user?.email) {
-    return null;
-  }
-
-  /* ================= USUÁRIO ================= */
-  useEffect(() => {
-    carregarUsuario();
-    const interval = setInterval(carregarUsuario, 5000);
+    const interval = setInterval(atualizarUsuario, 5000);
     return () => clearInterval(interval);
   }, []);
 
-  async function carregarUsuario() {
+  // ======================================================
+  // Carregar usuário ao abrir
+  // ======================================================
+  useEffect(() => {
+    atualizarUsuario();
+  }, []);
+
+  async function atualizarUsuario() {
     try {
-      const res = await fetch("/api/usuario/ensure", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: session.user.email,
-          name: session.user.name,
-        }),
-      });
+      const email = localStorage.getItem("email");
 
-      const data = await res.json();
-      if (!data.ok) return;
+      if (!email) {
+        router.replace("/cadastro");
+        return;
+      }
 
-      setUsuario(data.usuario);
+      // 🔹 USUÁRIO
+      const resUser = await fetch(`/api/usuario?email=${email}`);
+      const dataUser = await resUser.json();
 
+      if (dataUser.ok) {
+        const user = dataUser.usuario;
+        setUsuario(user);
+
+        if (user.is_paid_certification && modalPix) {
+          setPagamentoConfirmado(true);
+          setModalPix(false);
+          setTimeout(() => setPagamentoConfirmado(false), 2500);
+        }
+      }
+
+      // 🔹 PROGRESSO
       const resProg = await fetch(
-        `/api/modulos/progresso?email=${session.user.email}`
+        `/api/modulos/progresso?email=${email}`
       );
       const dataProg = await resProg.json();
-      if (dataProg.ok) setProgresso(dataProg.modulos);
 
-      if (data.usuario.is_paid_certification && modalPix) {
-        setPagamentoConfirmado(true);
-        setModalPix(false);
-        setTimeout(() => setPagamentoConfirmado(false), 2500);
+      if (dataProg.ok) {
+        setProgresso(dataProg.modulos);
       }
     } catch (err) {
-      console.error("Erro painel:", err);
+      console.error("Erro atualizar painel:", err);
     }
 
     setLoading(false);
   }
 
-  /* ================= PAGAMENTO ================= */
+  // ======================================================
+  // Criar pagamento PIX
+  // ======================================================
   async function gerarPagamento() {
     try {
       const res = await fetch("/api/pagamento/criar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: session.user.email,
+          email: usuario.email,
           name: usuario.name,
           cpf: usuario.cpf,
         }),
       });
 
       const data = await res.json();
-      if (!data.ok) return alert("Erro ao gerar pagamento");
+
+      if (!data.ok) {
+        alert("Erro ao gerar pagamento.");
+        return;
+      }
 
       setPagamento({
         pixCopyPaste: data.pixCopyPaste,
@@ -95,12 +97,14 @@ export default function Painel() {
       });
 
       setModalPix(true);
-    } catch {
-      alert("Erro interno");
+    } catch (err) {
+      alert("Erro interno ao criar pagamento.");
     }
   }
 
-  /* ================= PROGRESSO ================= */
+  // ======================================================
+  // Progresso
+  // ======================================================
   function moduloAtual() {
     for (let i = 1; i <= totalModulos; i++) {
       if (!progresso.includes(i)) return i;
@@ -113,25 +117,29 @@ export default function Painel() {
 
   if (loading) return <div style={{ padding: 40 }}>Carregando painel…</div>;
 
-  /* ================= CONFIRMADO ================= */
+  // ======================================================
+  // 🎉 Pagamento confirmado
+  // ======================================================
   if (pagamentoConfirmado) {
     return (
       <div style={center}>
         <div style={card}>
-          <h2 style={{ color: "#2ecc71" }}>✔ Pagamento confirmado</h2>
-          <p>Acesso liberado.</p>
+          <h2 style={{ color: "#2ecc71" }}>✔ Pagamento Confirmado!</h2>
+          <p>Seu acesso foi liberado com sucesso.</p>
         </div>
       </div>
     );
   }
 
-  /* ================= PIX ================= */
+  // ======================================================
+  // 💰 Tela de pagamento
+  // ======================================================
   if (!usuario?.is_paid_certification) {
     return (
       <div style={center}>
         <div style={card}>
           <h2>🎓 Falta pouco!</h2>
-          <p>Pagamento único:</p>
+          <p>Finalize o pagamento único:</p>
 
           <h1 style={{ color: "#624b43" }}>R$ 17,77</h1>
 
@@ -141,11 +149,7 @@ export default function Painel() {
 
           {modalPix && pagamento && (
             <>
-              <textarea
-                readOnly
-                value={pagamento.pixCopyPaste}
-                style={textarea}
-              />
+              <textarea readOnly value={pagamento.pixCopyPaste} style={textarea} />
               <button
                 style={btnSecondary}
                 onClick={() =>
@@ -161,11 +165,12 @@ export default function Painel() {
     );
   }
 
-  /* ================= PAINEL ================= */
+  // ======================================================
+  // 🎓 Painel completo
+  // ======================================================
   return (
-    <div style={container}>
+    <div style={{ padding: 40, background: "#d9d9d6", minHeight: "100vh" }}>
       <h1>Bem-vindo(a), {usuario.name} 👋</h1>
-      <p>Progresso da Certificação</p>
 
       <div style={progressBar}>
         <div style={{ ...progressFill, width: `${percent}%` }} />
@@ -184,27 +189,19 @@ export default function Painel() {
           : `Continuar no Módulo ${atual}`}
       </button>
 
-      {modules.map((mod) => {
-        const completed = progresso.includes(mod.id);
-        const locked = !completed && mod.id > atual;
-
-        return (
-          <div key={mod.id} style={moduleCard}>
-            <strong>{mod.title}</strong>
-            <button
-              disabled={locked}
-              onClick={() => router.push(`/modulos/${mod.id}`)}
-            >
-              {completed ? "Revisar" : "Acessar"}
-            </button>
-          </div>
-        );
-      })}
+      {modules.map((mod) => (
+        <div key={mod.id} style={moduleCard}>
+          <strong>{mod.title}</strong>
+          <button onClick={() => router.push(`/modulos/${mod.id}`)}>
+            Acessar
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
 
-/* ================= ESTILOS ================= */
+/* ================== ESTILOS ================== */
 
 const center = {
   minHeight: "100vh",
@@ -212,12 +209,6 @@ const center = {
   justifyContent: "center",
   alignItems: "center",
   background: "#d9d9d6",
-};
-
-const container = {
-  padding: 40,
-  background: "#d9d9d6",
-  minHeight: "100vh",
 };
 
 const card = {
@@ -232,12 +223,11 @@ const card = {
 
 const btnPrimary = {
   marginTop: 20,
-  padding: "14px 22px",
+  padding: "14px",
   background: "#101820",
   color: "white",
   borderRadius: 12,
   width: "100%",
-  fontWeight: 600,
 };
 
 const btnSecondary = {
