@@ -6,22 +6,45 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { userId } = req.query;
+    const { email } = req.query;
 
-    if (!userId) {
-      return res.status(400).json({ error: "userId obrigatório" });
+    if (!email) {
+      return res.status(400).json({ error: "email obrigatório" });
     }
 
+    // 1️⃣ Buscar userId REAL a partir do email
+    const userResult = await pool.query(
+      `SELECT id FROM users WHERE email = $1`,
+      [email.toLowerCase()]
+    );
+
+    if (userResult.rowCount === 0) {
+      return res.status(404).json({ error: "Usuário não encontrado" });
+    }
+
+    const userId = userResult.rows[0].id;
+
+    // 2️⃣ Buscar progresso do usuário
     const result = await pool.query(
-      `SELECT module_id FROM user_module_progress WHERE user_id = $1 ORDER BY module_id ASC`,
-      [Number(userId)]
+      `
+      SELECT module_id
+      FROM user_module_progress
+      WHERE user_id = $1
+      ORDER BY module_id ASC
+      `,
+      [userId]
     );
 
     const modulos = result.rows.map((r) => Number(r.module_id));
 
-    return res.status(200).json({ ok: true, modulos });
+    return res.status(200).json({
+      ok: true,
+      modulos,
+    });
   } catch (err) {
     console.error("Erro ao carregar progresso:", err);
-    return res.status(500).json({ error: "Erro ao carregar progresso" });
+    return res.status(500).json({
+      error: "Erro ao carregar progresso",
+    });
   }
 }
