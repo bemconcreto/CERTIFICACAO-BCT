@@ -11,82 +11,97 @@ export default function Prova() {
   const [selected, setSelected] = useState({});
   const [score, setScore] = useState(null);
 
-  // 🔹 Carrega módulo
+  // ======================================================
+  // 🔹 Carregar módulo
+  // ======================================================
   useEffect(() => {
-    if (id) {
-      const mod = modules.find((m) => m.id === Number(id));
-      setModulo(mod);
-    }
+    if (!id) return;
+    const mod = modules.find((m) => m.id === Number(id));
+    setModulo(mod);
   }, [id]);
 
-// 🔹 Salva progresso quando passar
-useEffect(() => {
-  async function salvarProgresso() {
-    if (score === 100) {
-      const email = localStorage.getItem("email");
+  // ======================================================
+  // 🔹 Salvar progresso ao passar na prova
+  // ======================================================
+  useEffect(() => {
+    async function salvarProgresso() {
+      if (score !== 100) return;
 
+      const email = localStorage.getItem("email");
       if (!email) {
         alert("Sessão expirada. Faça login novamente.");
-        return router.replace("/login");
+        router.replace("/login");
+        return;
       }
 
       await concluirModulo(email, Number(id));
     }
-  }
 
-  salvarProgresso();
-}, [score, id]);
-  // 🔹 Cria certificado automaticamente quando conclui o módulo 11
-useEffect(() => {
-  async function criarCertificado() {
-    try {
-      const userId = localStorage.getItem("userId");
-      if (!userId) return;
+    salvarProgresso();
+  }, [score, id, router]);
 
-      const res = await fetch("/api/certificado/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          userId: Number(userId),
-          modulesCount: 11,
-          note: "Concluiu toda certificação BCT"
-        })
-      });
+  // ======================================================
+  // 🔹 Criar certificado automaticamente no último módulo
+  // ======================================================
+  useEffect(() => {
+    async function criarCertificado() {
+      const email = localStorage.getItem("email");
+      if (!email) return;
 
-      const data = await res.json();
-      if (data.ok) {
-        console.log("📄 Certificado criado:", data.id);
-        localStorage.setItem("certificateId", data.id);
-      } else {
-        console.warn("⚠ Certificado não criado:", data.error);
+      try {
+        await fetch("/api/certificado/create", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email,
+            modulesCount: 11,
+            note: "Concluiu toda certificação BCT",
+          }),
+        });
+      } catch (err) {
+        console.error("Erro criando certificado:", err);
       }
-    } catch (err) {
-      console.error("Erro criando certificado:", err);
     }
-  }
 
-  if (score === 100 && Number(id) === 11) {
-    criarCertificado();
-  }
-}, [score, id]);
+    if (score === 100 && Number(id) === 11) {
+      criarCertificado();
+    }
+  }, [score, id]);
 
-  // 🔹 Envia prova
+  // ======================================================
+  // 🔹 Enviar prova
+  // ======================================================
   const enviarProva = () => {
     let acertos = 0;
+
     modulo.questions.forEach((q, index) => {
       if (selected[index] === q.a) acertos++;
     });
-    const nota = Math.round((acertos / modulo.questions.length) * 100);
+
+    const nota = Math.round(
+      (acertos / modulo.questions.length) * 100
+    );
+
     setScore(nota);
   };
 
-  if (!modulo) return <div style={{ padding: 40 }}>Carregando...</div>;
+  // ======================================================
+  // 🔹 Loading
+  // ======================================================
+  if (!modulo) {
+    return <div style={{ padding: 40 }}>Carregando módulo...</div>;
+  }
 
+  // ======================================================
+  // 🔹 Render
+  // ======================================================
   return (
     <div style={{ padding: "40px", maxWidth: 900, margin: "0 auto" }}>
       <h1>Prova — {modulo.title}</h1>
 
-      {/* SE AINDA NÃO ENVIOU A PROVA */}
+      {/* ===================== */}
+      {/* PROVA */}
+      {/* ===================== */}
       {score === null && (
         <>
           {modulo.questions.map((q, index) => (
@@ -94,17 +109,20 @@ useEffect(() => {
               <p style={{ fontWeight: "bold" }}>{q.q}</p>
 
               {q.options.map((opt) => (
-                <div key={opt} style={{ marginBottom: 5 }}>
+                <div key={opt}>
                   <label>
                     <input
                       type="radio"
                       name={`q${index}`}
                       value={opt}
                       onChange={() =>
-                        setSelected((prev) => ({ ...prev, [index]: opt }))
+                        setSelected((prev) => ({
+                          ...prev,
+                          [index]: opt,
+                        }))
                       }
-                    />
-                    {" "} {opt}
+                    />{" "}
+                    {opt}
                   </label>
                 </div>
               ))}
@@ -128,20 +146,23 @@ useEffect(() => {
         </>
       )}
 
-      {/* SE JÁ MOSTRA RESULTADO */}
+      {/* ===================== */}
+      {/* RESULTADO */}
+      {/* ===================== */}
       {score !== null && (
         <div style={{ marginTop: 30 }}>
           <h2>Resultado: {score}%</h2>
 
           {score === 100 ? (
-            <p style={{ color: "green" }}>✔ Parabéns! Você foi aprovado.</p>
+            <p style={{ color: "green" }}>
+              ✔ Parabéns! Você foi aprovado.
+            </p>
           ) : (
             <p style={{ color: "red" }}>
               ❌ Você não atingiu 100%. Tente novamente.
             </p>
           )}
 
-          {/* BOTÃO PRÓXIMO MÓDULO */}
           <button
             onClick={() => router.push(`/modulos/${Number(id) + 1}`)}
             style={{
@@ -157,7 +178,6 @@ useEffect(() => {
             Ir para o próximo módulo
           </button>
 
-          {/* BOTÃO VOLTAR AO PAINEL */}
           <button
             onClick={() => router.push("/painel")}
             style={{
@@ -174,7 +194,6 @@ useEffect(() => {
             Voltar ao Painel
           </button>
 
-          {/* BOTÃO GERAR CERTIFICADO (SOMENTE APÓS ÚLTIMO MÓDULO) */}
           {Number(id) === 11 && score === 100 && (
             <button
               onClick={() => router.push("/certificado")}
