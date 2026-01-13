@@ -6,6 +6,10 @@ export default function Painel() {
   const router = useRouter();
   const totalModulos = modules.length;
 
+  // 🔑 FONTE ÚNICA DE IDENTIDADE (GOOGLE)
+  const email =
+    typeof window !== "undefined" ? localStorage.getItem("email") : null;
+
   const [usuario, setUsuario] = useState(null);
   const [progresso, setProgresso] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -33,33 +37,38 @@ export default function Painel() {
   }, []);
 
   async function atualizarUsuario() {
-
-
     try {
-      const resUser = await fetch(`/api/usuario?id=${userId}`);
+      if (!email) {
+        setLoading(false);
+        return;
+      }
+
+      // 🔹 USUÁRIO
+      const resUser = await fetch(`/api/usuario?email=${email}`);
       const dataUser = await resUser.json();
 
       if (dataUser.ok) {
         const user = dataUser.usuario;
         setUsuario(user);
 
-        // 🎉 Se pagamento foi confirmado e estava no PIX → mostrar tela de sucesso
-        if (user.is_paid_certification) {
-          if (modalPix) {
-            setPagamentoConfirmado(true);
-            setModalPix(false);
+        // 🎉 Se pagamento foi confirmado e estava no PIX
+        if (user.is_paid_certification && modalPix) {
+          setPagamentoConfirmado(true);
+          setModalPix(false);
 
-            setTimeout(() => {
-              setPagamentoConfirmado(false);
-            }, 2500);
-          }
+          setTimeout(() => {
+            setPagamentoConfirmado(false);
+          }, 2500);
         }
       }
 
-      const resProg = await fetch(`/api/modulos/progresso?userId=${userId}`);
+      // 🔹 PROGRESSO
+      const resProg = await fetch(
+        `/api/modulos/progresso?email=${email}`
+      );
       const dataProg = await resProg.json();
-      if (dataProg.ok) setProgresso(dataProg.modulos);
 
+      if (dataProg.ok) setProgresso(dataProg.modulos);
     } catch (err) {
       console.log("Erro atualizar painel:", err);
     }
@@ -72,13 +81,10 @@ export default function Painel() {
   // ======================================================
   async function gerarPagamento() {
     try {
-      const userId = localStorage.getItem("userId");
-
       const res = await fetch("/api/pagamento/criar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          userId,
           email: usuario.email,
           cpf: usuario.cpf,
           name: usuario.name,
@@ -86,7 +92,6 @@ export default function Painel() {
       });
 
       const data = await res.json();
-      console.log("RESPOSTA FRONT:", data);
 
       if (!data.ok) {
         alert("Erro ao gerar pagamento.");
@@ -99,9 +104,7 @@ export default function Painel() {
       });
 
       setModalPix(true);
-
     } catch (err) {
-      console.log("Erro pagamento:", err);
       alert("Erro interno ao criar pagamento.");
     }
   }
@@ -126,151 +129,47 @@ export default function Painel() {
   // ======================================================
   if (pagamentoConfirmado) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          background: "#d9d9d6",
-          padding: 20,
-          textAlign: "center",
-        }}
-      >
-        <div
-          style={{
-            background: "white",
-            padding: "40px 30px",
-            borderRadius: 20,
-            maxWidth: 500,
-            width: "100%",
-            boxShadow: "0px 6px 14px rgba(0,0,0,0.1)",
-            border: "1px solid #ccc",
-            transition: "all 0.4s ease",
-          }}
-        >
-          <h2 style={{ fontSize: 28, fontWeight: 700, color: "#2ecc71" }}>
-            ✔ Pagamento Confirmado!
-          </h2>
-
-          <p style={{ marginTop: 10, fontSize: 16 }}>
-            Seu acesso foi liberado com sucesso.
-          </p>
-
-          <p style={{ marginTop: 20, fontSize: 14, color: "#555" }}>
-            Redirecionando…
-          </p>
+      <div style={center}>
+        <div style={card}>
+          <h2 style={{ color: "#2ecc71" }}>✔ Pagamento Confirmado!</h2>
+          <p>Seu acesso foi liberado com sucesso.</p>
         </div>
       </div>
     );
   }
 
   // ======================================================
-  // TELA DO PIX
+  // 💰 Tela de pagamento
   // ======================================================
   if (!usuario?.is_paid_certification) {
     return (
-      <div
-        style={{
-          minHeight: "100vh",
-          background: "#d9d9d6",
-          padding: "40px 20px",
-          display: "flex",
-          justifyContent: "center",
-        }}
-      >
-        <div
-          style={{
-            background: "white",
-            padding: "40px 30px",
-            borderRadius: 20,
-            maxWidth: "520px",
-            width: "100%",
-            textAlign: "center",
-            border: "1px solid #ccc",
-            boxShadow: "0px 6px 14px rgba(0,0,0,0.08)",
-          }}
-        >
-          <h2 style={{ marginBottom: 10 }}>🎓 Falta Pouco!</h2>
-          <p>Para acessar a Certificação BCT, finalize o pagamento único:</p>
+      <div style={center}>
+        <div style={card}>
+          <h2>🎓 Falta pouco!</h2>
+          <p>Finalize o pagamento único:</p>
 
-          <h1 style={{ color: "#624b43", margin: "20px 0" }}>R$ 17,77</h1>
+          <h1 style={{ color: "#624b43" }}>R$ 17,77</h1>
 
-          <button
-            onClick={gerarPagamento}
-            style={{
-              padding: "14px 22px",
-              background: "#101820",
-              color: "white",
-              borderRadius: 12,
-              fontWeight: 600,
-              width: "100%",
-            }}
-          >
-            Pagar Agora via PIX
+          <button style={btnPrimary} onClick={gerarPagamento}>
+            Pagar via PIX
           </button>
 
           {modalPix && pagamento && (
-<div
-  style={{
-    marginTop: 30,
-    padding: 20,
-    borderRadius: 16,
-    background: "#ffffff",
-    border: "1px solid #ccc",
-    width: "100%",
-    maxWidth: "460px",
-    marginLeft: "auto",
-    marginRight: "auto",
-    boxShadow: "0px 4px 12px rgba(0,0,0,0.08)",
-    boxSizing: "border-box",
-  }}
->
-              <h3 style={{ textAlign: "center" }}>Código PIX Copia e Cola:</h3>
-
+            <>
               <textarea
                 readOnly
                 value={pagamento.pixCopyPaste}
-                style={{
-                  width: "100%",
-                  height: 140,
-                  padding: 10,
-                  borderRadius: 8,
-                  border: "1px solid #ccc",
-                  fontSize: 14,
-                  whiteSpace: "pre-wrap",
-                }}
+                style={textarea}
               />
-
               <button
-                onClick={() => {
-                  navigator.clipboard.writeText(pagamento.pixCopyPaste);
-                  alert("Código PIX copiado!");
-                }}
-                style={{
-                  marginTop: 12,
-                  padding: "12px 16px",
-                  background: "#624b43",
-                  color: "white",
-                  borderRadius: 10,
-                  width: "100%",
-                  fontWeight: 600,
-                }}
+                style={btnSecondary}
+                onClick={() =>
+                  navigator.clipboard.writeText(pagamento.pixCopyPaste)
+                }
               >
-                Copiar Código PIX
+                Copiar código PIX
               </button>
-
-              <p
-                style={{
-                  marginTop: 20,
-                  fontSize: 13,
-                  color: "#666",
-                  textAlign: "center",
-                }}
-              >
-                Assim que o pagamento for confirmado, seu acesso será liberado automaticamente.
-              </p>
-            </div>
+            </>
           )}
         </div>
       </div>
@@ -311,23 +210,8 @@ export default function Painel() {
         >
           <h2 style={{ marginBottom: 20 }}>Progresso da Certificação</h2>
 
-          <div
-            style={{
-              width: "100%",
-              height: 18,
-              background: "#eee",
-              borderRadius: 20,
-              overflow: "hidden",
-              marginBottom: 20,
-            }}
-          >
-            <div
-              style={{
-                width: `${percent}%`,
-                height: "100%",
-                background: "#624b43",
-              }}
-            />
+          <div style={progressBar}>
+            <div style={{ ...progressFill, width: `${percent}%` }} />
           </div>
 
           <button
@@ -336,13 +220,7 @@ export default function Painel() {
                 ? router.push("/certificado")
                 : router.push(`/modulos/${atual}`)
             }
-            style={{
-              padding: "14px 22px",
-              background: "#101820",
-              color: "white",
-              borderRadius: 12,
-              fontWeight: 600,
-            }}
+            style={btnPrimary}
           >
             {atual === "concluido"
               ? "Emitir Certificado"
@@ -356,19 +234,7 @@ export default function Painel() {
           const locked = !completed && mod.id > atual;
 
           return (
-            <div
-              key={mod.id}
-              style={{
-                background: "white",
-                padding: 20,
-                marginBottom: 14,
-                borderRadius: 12,
-                border: "1px solid #ccc",
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
+            <div key={mod.id} style={moduleCard}>
               <div>
                 <strong>{mod.title}</strong>
                 <p style={{ margin: 0 }}>
@@ -404,3 +270,73 @@ export default function Painel() {
     </div>
   );
 }
+
+/* ================== ESTILOS ================== */
+
+const center = {
+  minHeight: "100vh",
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+  background: "#d9d9d6",
+};
+
+const card = {
+  background: "white",
+  padding: 30,
+  borderRadius: 16,
+  maxWidth: 500,
+  width: "100%",
+  textAlign: "center",
+  border: "1px solid #ccc",
+};
+
+const btnPrimary = {
+  marginTop: 20,
+  padding: "14px 22px",
+  background: "#101820",
+  color: "white",
+  borderRadius: 12,
+  width: "100%",
+  fontWeight: 600,
+};
+
+const btnSecondary = {
+  marginTop: 10,
+  padding: "12px",
+  background: "#624b43",
+  color: "white",
+  borderRadius: 10,
+  width: "100%",
+};
+
+const textarea = {
+  width: "100%",
+  height: 120,
+  marginTop: 10,
+};
+
+const progressBar = {
+  width: "100%",
+  height: 18,
+  background: "#eee",
+  borderRadius: 20,
+  overflow: "hidden",
+  marginBottom: 20,
+};
+
+const progressFill = {
+  height: "100%",
+  background: "#624b43",
+};
+
+const moduleCard = {
+  background: "white",
+  padding: 20,
+  marginBottom: 14,
+  borderRadius: 12,
+  border: "1px solid #ccc",
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+};
