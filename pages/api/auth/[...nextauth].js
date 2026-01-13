@@ -14,9 +14,12 @@ export default NextAuth({
   },
 
   callbacks: {
-    async redirect({ baseUrl }) {
-      // SEMPRE volta para a certificação
-      return `${baseUrl}/cadastro`;
+    async redirect({ url, baseUrl }) {
+      // se vier callbackUrl válido, respeita
+      if (url.startsWith(baseUrl)) return url;
+
+      // fallback seguro
+      return `${baseUrl}/painel`;
     },
   },
 
