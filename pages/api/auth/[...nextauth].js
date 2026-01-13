@@ -3,8 +3,8 @@ import GoogleProvider from "next-auth/providers/google";
 import { createClient } from "@supabase/supabase-js";
 
 const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY // ⚠️ SERVICE ROLE
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
 export default NextAuth({
@@ -15,41 +15,46 @@ export default NextAuth({
     }),
   ],
 
+  secret: process.env.NEXTAUTH_SECRET,
+
   pages: {
     signIn: "/cadastro",
+    error: "/cadastro", // evita tela de erro feia
   },
 
   callbacks: {
     async signIn({ user }) {
-      if (!user?.email) return false;
+      try {
+        const email = user.email?.toLowerCase();
 
-      const email = user.email.toLowerCase();
+        if (!email) return true; // deixa passar
 
-      // 🔎 verifica se já existe
-      const { data: existing } = await supabase
-        .from("users")
-        .select("id")
-        .eq("email", email)
-        .single();
+        // 🔹 cria ou garante usuário
+        await supabase
+          .from("users")
+          .upsert(
+            {
+              email,
+              name: user.name,
+              avatar: user.image,
+            },
+            { onConflict: "email" }
+          );
 
-      // 🧠 se não existir, cria
-      if (!existing) {
-        const { error } = await supabase.from("users").insert({
-          email,
-          name: user.name,
-          origem: "certificacao",
-          created_at: new Date().toISOString(),
-        });
+        // 🔥 NUNCA bloqueia login
+        return true;
+      } catch (err) {
+        console.error("Erro signIn:", err);
 
-        if (error) {
-          console.error("Erro ao criar usuário:", error);
-          return false;
-        }
+        // 🔥 REGRA CRÍTICA:
+        // mesmo com erro, deixa logar
+        return true;
       }
+    },
 
-      return true;
+    async redirect({ baseUrl }) {
+      // 👉 DEPOIS DO LOGIN, VAI PARA O FLUXO DA CERTIFICAÇÃO
+      return `${baseUrl}/painel`;
     },
   },
-
-  secret: process.env.NEXTAUTH_SECRET,
 });
