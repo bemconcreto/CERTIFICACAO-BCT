@@ -1,20 +1,6 @@
-import { signIn, useSession } from "next-auth/react";
-import { useEffect } from "react";
-import { useRouter } from "next/router";
+import { signIn } from "next-auth/react";
 
 export default function Cadastro() {
-  const { status } = useSession();
-  const router = useRouter();
-
-  // 🔐 Se já está logado, manda direto pro painel
-  useEffect(() => {
-    if (status === "authenticated") {
-      router.replace("/painel");
-    }
-  }, [status, router]);
-
-  if (status === "loading") return null;
-
   return (
     <div style={page}>
       <div style={card}>
@@ -36,7 +22,7 @@ export default function Cadastro() {
 }
 
 /**
- * 🚨 Mantém SSR para evitar bug de build / loop
+ * 🚨 MANTÉM SSR (não mexe)
  */
 export async function getServerSideProps() {
   return { props: {} };
