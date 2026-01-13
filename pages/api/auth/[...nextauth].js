@@ -15,22 +15,11 @@ export default NextAuth({
     strategy: "jwt",
   },
 
-  cookies: {
-    sessionToken: {
-      name: "certificacao-bct.session-token",
-      options: {
-        httpOnly: true,
-        sameSite: "lax",
-        path: "/",
-        secure: process.env.NODE_ENV === "production",
-      },
-    },
-  },
-
   callbacks: {
     async redirect({ url, baseUrl }) {
+      // 🔥 deixa o fluxo normal do NextAuth
       if (url.startsWith(baseUrl)) return url;
-      return `${baseUrl}/painel`;
+      return baseUrl;
     },
   },
 });

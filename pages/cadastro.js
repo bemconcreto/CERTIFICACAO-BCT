@@ -1,28 +1,39 @@
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function Cadastro() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  // 🔥 SE JÁ ESTÁ LOGADO, SAI DO CADASTRO
+  useEffect(() => {
+    if (status === "authenticated") {
+      router.replace("/painel");
+    }
+  }, [status, router]);
+
+  // Evita flash
+  if (status === "loading") return null;
+
   return (
-    <div
-      style={{
-        display: "flex",
-        height: "100vh",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#d9d9d6",
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          padding: "50px 60px",
-          borderRadius: "16px",
-          textAlign: "center",
-          boxShadow: "0px 6px 10px rgba(0,0,0,0.1)",
-          border: "1px solid #cfcfcf",
-          maxWidth: 420,
-          width: "100%",
-        }}
-      >
+    <div style={{
+      display: "flex",
+      height: "100vh",
+      justifyContent: "center",
+      alignItems: "center",
+      background: "#d9d9d6",
+    }}>
+      <div style={{
+        background: "white",
+        padding: "50px 60px",
+        borderRadius: "16px",
+        textAlign: "center",
+        boxShadow: "0px 6px 10px rgba(0,0,0,0.1)",
+        border: "1px solid #cfcfcf",
+        maxWidth: 420,
+        width: "100%",
+      }}>
         <h1 style={{ fontSize: 28, marginBottom: 20 }}>
           Cadastro na Certificação BCT
         </h1>
@@ -32,11 +43,7 @@ export default function Cadastro() {
         </p>
 
         <button
-          onClick={() =>
-            signIn("google", {
-              callbackUrl: "/painel",
-            })
-          }
+          onClick={() => signIn("google")}
           style={{
             background: "#101820",
             color: "white",
