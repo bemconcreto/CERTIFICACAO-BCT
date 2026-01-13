@@ -3,17 +3,19 @@ import { useEffect } from "react";
 import { useRouter } from "next/router";
 
 export default function Cadastro() {
-  const { data: session, status } = useSession();
+  const sessionData = useSession();
   const router = useRouter();
 
-  // 🔥 SE JÁ ESTÁ LOGADO, SAI DO CADASTRO
+  // useSession pode ser undefined no SSR — protegemos
+  const status = sessionData?.status;
+
+  // 🔥 Se já está logado, sai do cadastro
   useEffect(() => {
     if (status === "authenticated") {
       router.replace("/painel");
     }
   }, [status, router]);
 
-  // Evita flash
   if (status === "loading") return null;
 
   return (
@@ -60,4 +62,12 @@ export default function Cadastro() {
       </div>
     </div>
   );
+}
+
+/**
+ * 🚨 ISSO AQUI É O QUE SALVA O BUILD
+ * Força o Next a NÃO tentar SSG
+ */
+export async function getServerSideProps() {
+  return { props: {} };
 }
