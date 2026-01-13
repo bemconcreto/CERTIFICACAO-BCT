@@ -1,68 +1,24 @@
-import { signIn } from "next-auth/react";
+import { useEffect } from "react";
 
 export default function Cadastro() {
+  useEffect(() => {
+    // Redireciona para login central do ecossistema BCT
+    window.location.href = "https://consultor.bemconcreto.com";
+  }, []);
+
   return (
     <div
       style={{
-        display: "flex",
         height: "100vh",
+        display: "flex",
         justifyContent: "center",
         alignItems: "center",
         background: "#d9d9d6",
-        padding: "20px",
+        fontSize: 16,
+        color: "#101820",
       }}
     >
-      <div
-        style={{
-          background: "white",
-          padding: "50px 40px",
-          borderRadius: "16px",
-          textAlign: "center",
-          boxShadow: "0px 6px 10px rgba(0,0,0,0.1)",
-          border: "1px solid #cfcfcf",
-          maxWidth: 420,
-          width: "100%",
-        }}
-      >
-        <h1
-          style={{
-            marginBottom: 20,
-            fontSize: 28,
-            fontWeight: 700,
-            color: "#101820",
-          }}
-        >
-          Certificação BCT
-        </h1>
-
-        <p
-          style={{
-            fontSize: 15,
-            marginBottom: 30,
-            lineHeight: "1.5",
-            color: "#444",
-          }}
-        >
-          Entre com sua conta Google para iniciar ou continuar sua
-          certificação como Consultor BCT.
-        </p>
-
-        <button
-          onClick={() => signIn("google", { callbackUrl: "/painel" })}
-          style={{
-            background: "#101820",
-            color: "white",
-            padding: "14px 25px",
-            borderRadius: "10px",
-            border: "none",
-            fontSize: 16,
-            cursor: "pointer",
-            width: "100%",
-          }}
-        >
-          Entrar com Google
-        </button>
-      </div>
+      Redirecionando para login…
     </div>
   );
 }

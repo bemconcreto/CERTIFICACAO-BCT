@@ -25,7 +25,7 @@ export default function Home() {
           borderRadius: "16px",
           textAlign: "center",
           boxShadow: "0px 6px 10px rgba(0,0,0,0.1)",
-          border:e: "1px solid #cfcfcf",
+          border: "1px solid #cfcfcf",
           maxWidth: 420,
           width: "100%",
         }}
