@@ -9,19 +9,28 @@ export default NextAuth({
     }),
   ],
 
-  pages: {
-    signIn: "/login",
+  secret: process.env.NEXTAUTH_SECRET,
+
+  session: {
+    strategy: "jwt",
+  },
+
+  cookies: {
+    sessionToken: {
+      name: "certificacao-bct.session-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax",
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+      },
+    },
   },
 
   callbacks: {
     async redirect({ url, baseUrl }) {
-      // se vier callbackUrl válido, respeita
       if (url.startsWith(baseUrl)) return url;
-
-      // fallback seguro
       return `${baseUrl}/painel`;
     },
   },
-
-  secret: process.env.NEXTAUTH_SECRET,
 });
