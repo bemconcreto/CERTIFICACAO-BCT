@@ -1,69 +1,31 @@
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
 export default function Cadastro() {
-  return (
-    <div style={page}>
-      <div style={card}>
-        <h1 style={title}>Consultor BCT</h1>
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
-        <button
-          style={googleButton}
-          onClick={() =>
-            signIn("google", {
-              callbackUrl: "/painel",
-            })
-          }
-        >
-          Entrar com Google
-        </button>
-      </div>
+  // 🔥 PASSO 2 — AQUI
+  useEffect(() => {
+    if (session?.user?.email) {
+      // ✅ salva quem é o usuário
+      localStorage.setItem("email", session.user.email);
+
+      // ✅ vai para o painel
+      router.replace("/painel");
+    }
+  }, [session, router]);
+
+  if (status === "loading") return null;
+
+  return (
+    <div style={{ padding: 40 }}>
+      <h1>Cadastro Certificação BCT</h1>
+
+      <button onClick={() => signIn("google")}>
+        Continuar com Google
+      </button>
     </div>
   );
 }
-
-/**
- * 🚨 MANTÉM SSR (não mexe)
- */
-export async function getServerSideProps() {
-  return { props: {} };
-}
-
-/* ================== ESTILOS ================== */
-
-const page = {
-  minHeight: "100vh",
-  background: "#efede9",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  padding: 20,
-};
-
-const card = {
-  background: "white",
-  borderRadius: 24,
-  padding: "40px 30px",
-  width: "100%",
-  maxWidth: 420,
-  textAlign: "center",
-  boxShadow: "0px 10px 30px rgba(0,0,0,0.12)",
-};
-
-const title = {
-  fontSize: 28,
-  fontWeight: 700,
-  marginBottom: 30,
-  color: "#101820",
-};
-
-const googleButton = {
-  width: "100%",
-  padding: "16px",
-  background: "#000",
-  color: "white",
-  border: "none",
-  borderRadius: 12,
-  fontSize: 16,
-  fontWeight: 600,
-  cursor: "pointer",
-};
