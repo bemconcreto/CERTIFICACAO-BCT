@@ -2,10 +2,14 @@ import NextAuth from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+// 🔒 Proteção extra contra env quebrada
+const supabase =
+  supabaseUrl && supabaseKey
+    ? createClient(supabaseUrl, supabaseKey)
+    : null;
 
 export default NextAuth({
   providers: [
@@ -19,42 +23,33 @@ export default NextAuth({
 
   pages: {
     signIn: "/cadastro",
-    error: "/cadastro", // evita tela de erro feia
+    error: "/cadastro",
   },
 
   callbacks: {
     async signIn({ user }) {
       try {
+        if (!supabase) return true;
+
         const email = user.email?.toLowerCase();
+        if (!email) return true;
 
-        if (!email) return true; // deixa passar
+        // 🔹 garante usuário no Supabase
+        await supabase.from("users").upsert(
+          {
+            email,
+            name: user.name,
+            avatar: user.image,
+          },
+          { onConflict: "email" }
+        );
 
-        // 🔹 cria ou garante usuário
-        await supabase
-          .from("users")
-          .upsert(
-            {
-              email,
-              name: user.name,
-              avatar: user.image,
-            },
-            { onConflict: "email" }
-          );
-
-        // 🔥 NUNCA bloqueia login
         return true;
       } catch (err) {
-        console.error("Erro signIn:", err);
-
-        // 🔥 REGRA CRÍTICA:
-        // mesmo com erro, deixa logar
+        console.error("Erro no signIn:", err);
+        // 🚨 NUNCA bloqueia login
         return true;
       }
-    },
-
-    async redirect({ baseUrl }) {
-      // 👉 DEPOIS DO LOGIN, VAI PARA O FLUXO DA CERTIFICAÇÃO
-      return `${baseUrl}/painel`;
     },
   },
 });
