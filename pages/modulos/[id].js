@@ -10,32 +10,48 @@ export default function Modulo() {
 
   const [modulo, setModulo] = useState(null);
 
-  // 🔒 BLOQUEIO DE ACESSO A MÓDULOS
+  // ======================================================
+  // 🔒 BLOQUEIO DE ACESSO A MÓDULOS (PADRÃO FINAL)
+  // ======================================================
   useEffect(() => {
     async function validarAcesso() {
-      const userId = localStorage.getItem("userId");
-      if (!userId) {
-        return router.replace("/login");
+      const email = localStorage.getItem("email");
+
+      // 🔥 SEM EMAIL = SEM SESSÃO
+      if (!email) {
+        router.replace("/cadastro");
+        return;
       }
 
-      // Carregar progresso real do Supabase
-      const resProg = await fetch(`/api/modulos/progresso?userId=${userId}`);
-      const dataProg = await resProg.json();
+      try {
+        // 🔹 BUSCA PROGRESSO PELO EMAIL (FONTE ÚNICA)
+        const resProg = await fetch(
+          `/api/modulos/progresso?email=${email}`
+        );
+        const dataProg = await resProg.json();
 
-      const concluidos = dataProg.modulos || [];
-      const moduloNumero = Number(id);
+        const concluidos = dataProg.modulos || [];
+        const moduloNumero = Number(id);
 
-      // 🔐 Regra: usuário só pode acessar até (último concluído + 1)
-      if (moduloNumero > concluidos.length + 1) {
-        alert("Você não pode acessar este módulo antes de concluir os anteriores.");
-        return router.replace("/painel");
+        // 🔐 Regra: só acessa até (último concluído + 1)
+        if (moduloNumero > concluidos.length + 1) {
+          alert(
+            "Você não pode acessar este módulo antes de concluir os anteriores."
+          );
+          router.replace("/painel");
+        }
+      } catch (err) {
+        console.error("Erro validando acesso ao módulo:", err);
+        router.replace("/painel");
       }
     }
 
     if (id) validarAcesso();
-  }, [id]);
+  }, [id, router]);
 
-  // 🔹 Carrega conteúdo do módulo
+  // ======================================================
+  // 🔹 CARREGA CONTEÚDO DO MÓDULO
+  // ======================================================
   useEffect(() => {
     if (id) {
       const mod = modules.find((m) => m.id === Number(id));
@@ -53,7 +69,9 @@ export default function Modulo() {
 
   return (
     <div style={{ padding: "40px", maxWidth: 900, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 32, marginBottom: 20 }}>{modulo.title}</h1>
+      <h1 style={{ fontSize: 32, marginBottom: 20 }}>
+        {modulo.title}
+      </h1>
 
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
