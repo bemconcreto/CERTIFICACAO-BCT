@@ -5,8 +5,8 @@ const supabase = createClient(
   process.env.SUPABASE_SERVICE_ROLE_KEY
 );
 
-// 🔒 STRING FIXA PARA USUÁRIOS GOOGLE
-const GOOGLE_PASSWORD_HASH = "GOOGLE_AUTH_USER_DO_NOT_USE";
+// senha fake obrigatória para usuários Google
+const GOOGLE_PASSWORD_HASH = "GOOGLE_AUTH_USER";
 
 export default async function handler(req, res) {
   const { email } = req.query;
@@ -32,7 +32,7 @@ export default async function handler(req, res) {
       return res.json({ ok: true, usuario: user });
     }
 
-    // 2️⃣ CPF FAKE VÁLIDO (11 dígitos)
+    // 2️⃣ CPF fake válido (11 dígitos)
     const cpfFake = (
       "999" +
       Math.floor(10000000 + Math.random() * 90000000)
@@ -40,7 +40,7 @@ export default async function handler(req, res) {
       .toString()
       .slice(0, 11);
 
-    // 3️⃣ Criar usuário COMPLETO (RESPEITANDO O BANCO)
+    // 3️⃣ Criar usuário respeitando TODAS as constraints
     const { data: newUser, error } = await supabase
       .from("users")
       .insert({
@@ -48,8 +48,8 @@ export default async function handler(req, res) {
         name: emailLower.split("@")[0].slice(0, 100),
         cpf: cpfFake,
 
-        // ⚠️ NOME EXATO DA COLUNA DO SUPABASE
-        password_hasl: GOOGLE_PASSWORD_HASH,
+        // ✅ NOME CORRETO DA COLUNA
+        password_hash: GOOGLE_PASSWORD_HASH,
 
         phone: null,
         instagram: null,
