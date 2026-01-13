@@ -2,8 +2,14 @@ import { useEffect } from "react";
 
 export default function Cadastro() {
   useEffect(() => {
-    // Redireciona para login central do ecossistema BCT
-    window.location.href = "https://consultor.bemconcreto.com";
+    const callbackUrl =
+      "https://certificacao.bemconcreto.com/painel";
+
+    const loginUrl =
+      "https://consultor.bemconcreto.com/?callbackUrl=" +
+      encodeURIComponent(callbackUrl);
+
+    window.location.href = loginUrl;
   }, []);
 
   return (
