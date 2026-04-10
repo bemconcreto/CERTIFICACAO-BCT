@@ -17,9 +17,15 @@ export default async function handler(req, res) {
     });
   }
 
+  const email = req.body.email;
+
+  if (!email) {
+    return res.status(400).json({ ok: false, error: "Email obrigatório" });
+  }
+
   try {
     // -------------------------------------------------------
-    // 1️⃣ Criar pagamento PIX
+    // 1️⃣ Criar pagamento PIX — externalReference = EMAIL do usuário
     // -------------------------------------------------------
     const createPayment = await fetch("https://www.asaas.com/api/v3/payments", {
       method: "POST",
@@ -32,7 +38,7 @@ export default async function handler(req, res) {
         billingType: "PIX",
         value: 17.77,
         dueDate: new Date().toISOString().slice(0, 10),
-        externalReference: req.body.userId, // ⭐ ESSENCIAL!
+        externalReference: email.toLowerCase(), // ⭐ ESSENCIAL — email do usuário!
       }),
     });
 
@@ -66,7 +72,7 @@ export default async function handler(req, res) {
     }
 
     // -------------------------------------------------------
-    // 3️⃣ Retornar ao frontend
+    // 4️⃣ Retornar ao frontend
     // -------------------------------------------------------
     return res.status(200).json({
       ok: true,

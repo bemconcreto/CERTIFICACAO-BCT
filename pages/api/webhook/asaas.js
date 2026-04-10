@@ -1,6 +1,11 @@
 // pages/api/webhook/asaas.js
 
-import db from "../../../lib/db";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
 
 export const config = {
   api: {
@@ -24,6 +29,7 @@ export default async function handler(req, res) {
     const data = JSON.parse(body);
 
     console.log("📩 Webhook ASAAS:", data.event);
+    console.log("📩 Webhook Payment:", JSON.stringify(data.payment));
 
     const { event, payment } = data;
 
@@ -34,21 +40,27 @@ export default async function handler(req, res) {
     }
 
     if (event === "PAYMENT_RECEIVED" || event === "PAYMENT_CONFIRMED") {
-      const email = payment.customerEmail || payment.billingEmail;
+      // ⭐ Usar externalReference (email do usuário) como identificador principal
+      const email = payment.externalReference;
 
       if (!email) {
-        console.log("⚠️ Sem email no pagamento");
+        console.log("⚠️ Sem externalReference no pagamento");
         return res.status(200).json({ received: true });
       }
 
-      await db.query(
-        `UPDATE users
-         SET is_paid_certification = true
-         WHERE email = $1`,
-        [email.toLowerCase()]
-      );
+      const { error } = await supabase
+        .from("users")
+        .update({
+          is_paid_certification: true,
+          payment_date: new Date().toISOString(),
+        })
+        .eq("email", email.toLowerCase());
 
-      console.log("✔ Certificação liberada para:", email);
+      if (error) {
+        console.error("❌ Erro ao atualizar user:", error);
+      } else {
+        console.log("✅ Certificação liberada para:", email);
+      }
     }
 
     return res.status(200).json({ received: true });
