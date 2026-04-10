@@ -31,6 +31,37 @@ export default function Painel() {
   }, []);
 
   // ======================================================
+  // 🔄 Polling do status do pagamento no Asaas (a cada 5s enquanto modal PIX aberto)
+  // ======================================================
+  useEffect(() => {
+    if (!modalPix || !pagamento?.chargeId || !usuario?.email) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(
+          `/api/pagamento/verificar?chargeId=${pagamento.chargeId}&email=${encodeURIComponent(usuario.email)}`
+        );
+        const data = await res.json();
+
+        if (data.ok && data.isPaid) {
+          console.log("✅ Pagamento confirmado via polling!");
+          setPagamentoConfirmado(true);
+          setModalPix(false);
+          atualizarUsuario();
+
+          setTimeout(() => {
+            setPagamentoConfirmado(false);
+          }, 2500);
+        }
+      } catch (err) {
+        console.log("Erro polling pagamento:", err);
+      }
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [modalPix, pagamento, usuario]);
+
+  // ======================================================
   // Carregar usuário ao abrir
   // ======================================================
   useEffect(() => {
