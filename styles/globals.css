@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ======================================================
+   BEM CONCRETO — DESIGN TOKENS
+   (mesma paleta do APP-BCT e CONSULTOR-BCT, em HSL para
+   suportar modificadores de opacidade do Tailwind v3,
+   ex: bg-primary/10)
+====================================================== */
+
+:root {
+  --radius: 0.625rem;
+
+  --background: 210 17% 97%;
+  --foreground: 210 33% 9%;
+
+  --card: 0 0% 100%;
+  --card-foreground: 210 33% 9%;
+
+  --primary: 16 18% 47%;
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 24 12% 70%;
+  --secondary-foreground: 210 33% 9%;
+
+  --tertiary: 38 52% 58%;
+
+  --muted: 0 0% 95%;
+  --muted-foreground: 220 9% 46%;
+
+  --accent: 16 18% 47%;
+  --accent-foreground: 0 0% 100%;
+
+  --destructive: 0 84% 60%;
+
+  --border: 220 13% 91%;
+  --input: 220 13% 91%;
+  --ring: 16 18% 47%;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

@@ -1,6 +1,8 @@
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import Head from "next/head";
+import { CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function VerificarEmail() {
   const router = useRouter();
@@ -34,185 +36,101 @@ export default function VerificarEmail() {
 
   const content = {
     validando: {
-      iconBg: "#f0f4ff",
+      iconBg: "bg-[#8D6E63]/10",
       title: "Validando seu e-mail…",
       desc: "Aguarde enquanto verificamos seu token.",
-      titleColor: "#101820",
+      titleColor: "text-[#101820]",
     },
     sucesso: {
-      icon: "✅",
-      iconBg: "#f0fdf4",
+      iconBg: "bg-emerald-50",
       title: "E-mail confirmado!",
       desc: "Tudo certo! Você será redirecionado para o login em instantes.",
-      titleColor: "#166534",
+      titleColor: "text-emerald-700",
     },
     erro: {
-      icon: "❌",
-      iconBg: "#fef3f2",
+      iconBg: "bg-red-50",
       title: "Token inválido ou expirado",
       desc: "Não conseguimos validar seu e-mail. Solicite um novo link de verificação.",
-      titleColor: "#991b1b",
+      titleColor: "text-red-700",
     },
   };
 
   const c = content[status];
 
   return (
-    <div style={container}>
+    <>
       <Head>
         <title>Verificar E-mail | BEM Concreto</title>
         <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
       </Head>
 
-      <div style={card}>
-        {/* Logo */}
-        <div style={logoContainer}>
-          <div style={logoAccent} />
-          <img src="/logo-bct2.png" alt="Logo BEM" style={logoImg} />
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#F7F8F9] p-5">
+        {/* Background decorations */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute top-[-120px] left-[-80px] w-[500px] h-[500px] rounded-full bg-[#8D6E63]/[0.07] blur-[120px]" />
+          <div className="absolute bottom-[-100px] right-[-60px] w-[400px] h-[400px] rounded-full bg-[#CBA35C]/[0.06] blur-[100px]" />
+          <div className="absolute top-[40%] left-[60%] w-[300px] h-[300px] rounded-full bg-[#8D6E63]/[0.04] blur-[80px]" />
         </div>
 
-        {/* Ícone de status */}
-        <div style={{
-          width: 64,
-          height: 64,
-          borderRadius: "50%",
-          background: c.iconBg,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          margin: "0 auto 20px",
-          fontSize: 28,
-        }}>
-          {c.icon}
-        </div>
+        <div className="relative w-full max-w-[440px]">
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-[#E5E7EB]/60 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
+            {/* Logo */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="relative mb-4">
+                <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-[#8D6E63]/20 to-[#CBA35C]/10 blur-xl" />
+                <div className="relative w-24 h-24 rounded-2xl bg-white border border-[#E5E7EB]/60 flex items-center justify-center shadow-sm overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8D6E63] to-[#101820]" />
+                  <img src="/logo-bct2.png" alt="Logo BEM" className="w-14 h-14 object-contain" />
+                </div>
+              </div>
+            </div>
 
-        <h2 style={{ fontSize: 22, fontWeight: 700, color: c.titleColor, margin: "0 0 8px 0" }}>
-          {c.title}
-        </h2>
-        <p style={{ color: "#888", fontSize: 15, lineHeight: "1.6", margin: "0 0 28px 0" }}>
-          {c.desc}
-        </p>
+            {/* Ícone de status */}
+            <div className={`w-16 h-16 rounded-full ${c.iconBg} flex items-center justify-center mx-auto mb-5`}>
+              {status === "validando" && <Loader2 className="w-7 h-7 text-[#8D6E63] animate-spin" />}
+              {status === "sucesso" && <CheckCircle2 className="w-7 h-7 text-emerald-600" />}
+              {status === "erro" && <XCircle className="w-7 h-7 text-red-600" />}
+            </div>
 
-        {status === "validando" && (
-          <div style={{
-            width: "100%",
-            height: 6,
-            background: "#eee",
-            borderRadius: 10,
-            overflow: "hidden",
-          }}>
-            <div style={{
-              width: "60%",
-              height: "100%",
-              background: "linear-gradient(90deg, #8D6E63, #8D6E63)",
-              borderRadius: 10,
-              animation: "pulse 1.5s ease-in-out infinite",
-            }} />
+            <h2 className={`text-xl font-bold ${c.titleColor} mb-2`}>
+              {c.title}
+            </h2>
+            <p className="text-sm text-[#6B7280] mb-7 leading-relaxed">
+              {c.desc}
+            </p>
+
+            {status === "validando" && (
+              <div className="w-full h-1.5 bg-[#E5E7EB] rounded-full overflow-hidden">
+                <div className="w-3/5 h-full bg-[#8D6E63] rounded-full animate-pulse" />
+              </div>
+            )}
+
+            {status === "erro" && (
+              <div className="space-y-3">
+                <Button
+                  onClick={() => router.push("/login")}
+                  className="w-full rounded-xl bg-gradient-to-r from-[#8D6E63] to-[#8D6E63]/85 text-white font-semibold text-sm py-3.5 h-auto shadow-md shadow-[#8D6E63]/20 hover:shadow-lg hover:shadow-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+                >
+                  Ir para o login
+                </Button>
+                <Button
+                  onClick={() => router.push("/")}
+                  variant="outline"
+                  className="w-full rounded-xl bg-white border-[#E5E7EB] text-[#101820] font-medium text-sm py-3.5 h-auto shadow-sm hover:shadow-md hover:border-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+                >
+                  Voltar ao início
+                </Button>
+              </div>
+            )}
+
+            {status === "sucesso" && (
+              <p className="text-xs text-[#9CA3AF]">
+                Redirecionando para o login…
+              </p>
+            )}
           </div>
-        )}
-
-        {status === "erro" && (
-          <>
-            <button
-              onClick={() => router.push("/login")}
-              style={btnPrimary}
-            >
-              Ir para o login
-            </button>
-            <button
-              onClick={() => router.push("/")}
-              style={btnSecondary}
-            >
-              Voltar ao início
-            </button>
-          </>
-        )}
-
-        {status === "sucesso" && (
-          <p style={{ fontSize: 13, color: "#aaa", margin: 0 }}>
-            Redirecionando para o login…
-          </p>
-        )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
-
-/* ================== ESTILOS ================== */
-
-const container = {
-  minHeight: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  background: "#F7F8F9",
-  padding: "40px 20px",
-};
-
-const card = {
-  background: "white",
-  padding: "40px 36px",
-  borderRadius: 20,
-  maxWidth: 440,
-  width: "100%",
-  textAlign: "center",
-  border: "1px solid #e0e0e0",
-  boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-};
-
-const logoContainer = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 90,
-  height: 90,
-  borderRadius: 22,
-  background: "#fff",
-  border: "2px solid #e8e4e1",
-  boxShadow: "0 2px 8px rgba(122,93,83,0.08), 0 12px 40px rgba(16,24,32,0.06)",
-  marginBottom: 24,
-  position: "relative",
-  overflow: "hidden",
-};
-
-const logoAccent = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  height: 4,
-  background: "linear-gradient(90deg, #8D6E63, #101820)",
-  borderRadius: "22px 22px 0 0",
-};
-
-const logoImg = {
-  width: 55,
-  height: 55,
-  objectFit: "contain",
-  marginTop: 2,
-};
-
-const btnPrimary = {
-  padding: "14px 22px",
-  background: "#101820",
-  color: "white",
-  borderRadius: 12,
-  width: "100%",
-  fontWeight: 600,
-  fontSize: 16,
-  border: "none",
-  cursor: "pointer",
-};
-
-const btnSecondary = {
-  marginTop: 10,
-  padding: "12px 20px",
-  background: "#8D6E63",
-  color: "white",
-  borderRadius: 10,
-  width: "100%",
-  fontWeight: 600,
-  fontSize: 15,
-  border: "none",
-  cursor: "pointer",
-};

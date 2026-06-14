@@ -1,5 +1,6 @@
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   const router = useRouter();
@@ -10,179 +11,69 @@ export default function Home() {
         <title>Certificação Consultor | BEM Concreto</title>
         <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
       </Head>
-      <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        minHeight: "100vh",
-        justifyContent: "center",
-        alignItems: "center",
-        background: "#F7F8F9",
-        padding: "20px",
-      }}
-    >
-      <div
-        style={{
-          background: "white",
-          padding: "55px 50px 45px",
-          borderRadius: "20px",
-          textAlign: "center",
-          boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
-          border: "1px solid #e0e0e0",
-          maxWidth: 440,
-          width: "100%",
-        }}
-      >
-        {/* Logo modern container */}
-        <div
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            justifyContent: "center",
-            width: 120,
-            height: 120,
-            borderRadius: "28px",
-            background: "#fff",
-            border: "2px solid #e8e4e1",
-            boxShadow:
-              "0 2px 8px rgba(122,93,83,0.08), 0 12px 40px rgba(16,24,32,0.06)",
-            marginBottom: 30,
-            position: "relative",
-            overflow: "hidden",
-          }}
-        >
-          {/* Subtle decorative accent */}
-          <div
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 4,
-              background: "linear-gradient(90deg, #8D6E63, #101820)",
-              borderRadius: "28px 28px 0 0",
-            }}
-          />
-          <img
-            src="/logo-bct2.png"
-            alt="Logo BEM"
-            style={{
-              width: 75,
-              height: 75,
-              objectFit: "contain",
-              marginTop: 2,
-            }}
-          />
+
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#F7F8F9] p-5">
+        {/* Background decorations */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute top-[-120px] left-[-80px] w-[500px] h-[500px] rounded-full bg-[#8D6E63]/[0.07] blur-[120px]" />
+          <div className="absolute bottom-[-100px] right-[-60px] w-[400px] h-[400px] rounded-full bg-[#CBA35C]/[0.06] blur-[100px]" />
+          <div className="absolute top-[40%] left-[60%] w-[300px] h-[300px] rounded-full bg-[#8D6E63]/[0.04] blur-[80px]" />
         </div>
 
-        <h1
-          style={{
-            marginBottom: 8,
-            fontSize: 28,
-            fontWeight: 700,
-            color: "#101820",
-            letterSpacing: "-0.5px",
-            lineHeight: 1.2,
-          }}
-        >
-          Certificação Consultor
-        </h1>
-        <h2
-          style={{
-            marginTop: 0,
-            marginBottom: 20,
-            fontSize: 22,
-            fontWeight: 600,
-            color: "#8D6E63",
-            letterSpacing: "2px",
-            textTransform: "uppercase",
-          }}
-        >
-          BEM Concreto
-        </h2>
+        <div className="relative w-full max-w-[440px]">
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-[#E5E7EB]/60 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
+            {/* Logo */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="relative mb-4">
+                <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-[#8D6E63]/20 to-[#CBA35C]/10 blur-xl" />
+                <div className="relative w-24 h-24 rounded-2xl bg-white border border-[#E5E7EB]/60 flex items-center justify-center shadow-sm overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8D6E63] to-[#101820]" />
+                  <img src="/logo-bct2.png" alt="Logo BEM" className="w-14 h-14 object-contain" />
+                </div>
+              </div>
 
-        {/* Divider */}
-        <div
-          style={{
-            width: 50,
-            height: 3,
-            background: "linear-gradient(90deg, #8D6E63, #8D6E63)",
-            borderRadius: 2,
-            margin: "0 auto 24px",
-          }}
-        />
+              <h1 className="text-2xl font-bold text-[#101820] tracking-tight">
+                Certificação Consultor
+              </h1>
+              <h2 className="mt-1 text-sm font-semibold text-[#8D6E63] uppercase tracking-[2px]">
+                BEM Concreto
+              </h2>
+            </div>
 
-        <p
-          style={{
-            fontSize: 15,
-            marginBottom: 36,
-            lineHeight: "1.7",
-            color: "#555",
-          }}
-        >
-          Torne-se um consultor certificado e aumente sua comissão de
-          <span
-            style={{
-              fontWeight: 700,
-              color: "#101820",
-              background: "linear-gradient(120deg, rgba(122,93,83,0.12) 0%, rgba(122,93,83,0.06) 100%)",
-              padding: "2px 8px",
-              borderRadius: 6,
-            }}
-          >
-            2% para 4%
-          </span>
-        </p>
+            {/* Divider */}
+            <div className="w-12 h-[3px] bg-[#8D6E63] rounded-full mx-auto mb-6" />
 
-        <button
-          onClick={() => router.push("/cadastro")}
-          style={btnPrimary}
-        >
-          Iniciar Certificação
-        </button>
+            <p className="text-sm leading-relaxed text-[#6B7280] mb-8">
+              Torne-se um consultor certificado e aumente sua comissão de{" "}
+              <span className="font-bold text-[#101820] bg-[#8D6E63]/10 px-2 py-0.5 rounded-md">
+                2% para 4%
+              </span>
+            </p>
 
-        <button
-          onClick={() => router.push("/login")}
-          style={btnSecondary}
-        >
-          Continuar Certificação
-        </button>
+            {/* Buttons */}
+            <div className="space-y-3">
+              <Button
+                onClick={() => router.push("/cadastro")}
+                className="w-full rounded-xl bg-gradient-to-r from-[#8D6E63] to-[#8D6E63]/85 text-white font-semibold text-sm py-3.5 h-auto shadow-md shadow-[#8D6E63]/20 hover:shadow-lg hover:shadow-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+              >
+                Iniciar Certificação
+              </Button>
 
-        <p
-          style={{
-            marginTop: 28,
-            fontSize: 12,
-            color: "#aaa",
-            letterSpacing: "0.3px",
-          }}
-        >
-          Plataforma oficial de certificação BEM Concreto
-        </p>
+              <Button
+                onClick={() => router.push("/login")}
+                variant="outline"
+                className="w-full rounded-xl bg-white border-[#E5E7EB] text-[#101820] font-medium text-sm py-3.5 h-auto shadow-sm hover:shadow-md hover:border-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+              >
+                Continuar Certificação
+              </Button>
+            </div>
+
+            <p className="mt-7 text-xs text-[#9CA3AF] tracking-wide">
+              Plataforma oficial de certificação BEM Concreto
+            </p>
+          </div>
+        </div>
       </div>
-    </div>
     </>
   );
 }
-
-const btnPrimary = {
-  background: "#101820",
-  color: "white",
-  padding: "14px 25px",
-  borderRadius: "10px",
-  border: "none",
-  marginBottom: 16,
-  fontSize: 16,
-  cursor: "pointer",
-  width: "100%",
-};
-
-const btnSecondary = {
-  background: "#8D6E63",
-  color: "white",
-  padding: "14px 25px",
-  borderRadius: "10px",
-  border: "none",
-  fontSize: 16,
-  cursor: "pointer",
-  width: "100%",
-};

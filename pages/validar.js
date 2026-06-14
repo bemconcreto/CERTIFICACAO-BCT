@@ -1,5 +1,8 @@
 import { useState } from "react";
 import Head from "next/head";
+import { CheckCircle2, XCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Validar() {
   const [code, setCode] = useState("");
@@ -23,197 +26,119 @@ export default function Validar() {
   }
 
   return (
-    <div style={container}>
+    <>
       <Head>
         <title>Validar Certificado | BEM Concreto</title>
         <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
       </Head>
 
-      <form onSubmit={validate} style={card}>
-        {/* Logo */}
-        <div style={logoContainer}>
-          <div style={logoAccent} />
-          <img src="/logo-bct2.png" alt="Logo BEM" style={logoImg} />
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#F7F8F9] p-5">
+        {/* Background decorations */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute top-[-120px] left-[-80px] w-[500px] h-[500px] rounded-full bg-[#8D6E63]/[0.07] blur-[120px]" />
+          <div className="absolute bottom-[-100px] right-[-60px] w-[400px] h-[400px] rounded-full bg-[#CBA35C]/[0.06] blur-[100px]" />
+          <div className="absolute top-[40%] left-[60%] w-[300px] h-[300px] rounded-full bg-[#8D6E63]/[0.04] blur-[80px]" />
         </div>
 
-        <h1 style={titulo}>Validar Certificado</h1>
-        <p style={subtitulo}>
-          Insira o código do certificado para verificar sua autenticidade.
-        </p>
+        <div className="relative w-full max-w-[480px]">
+          <form
+            onSubmit={validate}
+            className="bg-white/80 backdrop-blur-xl rounded-3xl border border-[#E5E7EB]/60 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center"
+          >
+            {/* Logo */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="relative mb-4">
+                <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-[#8D6E63]/20 to-[#CBA35C]/10 blur-xl" />
+                <div className="relative w-24 h-24 rounded-2xl bg-white border border-[#E5E7EB]/60 flex items-center justify-center shadow-sm overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8D6E63] to-[#101820]" />
+                  <img src="/logo-bct2.png" alt="Logo BEM" className="w-14 h-14 object-contain" />
+                </div>
+              </div>
 
-        <div style={{ textAlign: "left", marginBottom: 20 }}>
-          <label style={label}>Código do certificado</label>
-          <input
-            type="text"
-            placeholder="Ex: BEM-XXXX-XXXX"
-            value={code}
-            onChange={(e) => setCode(e.target.value)}
-            style={input}
-          />
-        </div>
-
-        <button type="submit" disabled={loading} style={btnPrimary}>
-          {loading ? "Validando…" : "Validar"}
-        </button>
-
-        {/* Resultado */}
-        {result && (
-          <div style={{
-            marginTop: 24,
-            padding: "20px 20px",
-            borderRadius: 14,
-            background: result.ok ? "#f0fdf4" : "#fef3f2",
-            border: `1px solid ${result.ok ? "#bbf7d0" : "#fecaca"}`,
-            textAlign: "left",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <span style={{
-                width: 36,
-                height: 36,
-                borderRadius: "50%",
-                background: result.ok ? "#dcfce7" : "#fee2e2",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: 18,
-                flexShrink: 0,
-              }}>
-                {result.ok ? "✅" : "❌"}
-              </span>
-              <strong style={{
-                fontSize: 16,
-                color: result.ok ? "#166534" : "#991b1b",
-              }}>
-                {result.ok ? "Certificado válido!" : "Certificado não encontrado"}
-              </strong>
+              <h1 className="text-2xl font-bold text-[#101820] tracking-tight">
+                Validar Certificado
+              </h1>
+              <p className="text-sm text-[#6B7280] mt-1.5">
+                Insira o código do certificado para verificar sua autenticidade.
+              </p>
             </div>
 
-            {result.ok && result.certificado && (
-              <div style={{ marginLeft: 46 }}>
-                <p style={resultLine}><span style={resultLabel}>Nome:</span> {result.certificado.name || result.certificado.nome}</p>
-                {result.certificado.cpf && <p style={resultLine}><span style={resultLabel}>CPF:</span> {result.certificado.cpf}</p>}
-                {result.certificado.date && <p style={resultLine}><span style={resultLabel}>Data:</span> {result.certificado.date}</p>}
+            <div className="text-left mb-5">
+              <label className="block text-xs font-semibold text-[#6B7280] mb-1.5">
+                Código do certificado
+              </label>
+              <Input
+                type="text"
+                placeholder="Ex: BEM-XXXX-XXXX"
+                value={code}
+                onChange={(e) => setCode(e.target.value)}
+                className="h-11 rounded-xl border-[#E5E7EB] bg-[#FAFAFA] text-sm"
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full rounded-xl bg-gradient-to-r from-[#8D6E63] to-[#8D6E63]/85 text-white font-semibold text-sm py-3.5 h-auto shadow-md shadow-[#8D6E63]/20 hover:shadow-lg hover:shadow-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+            >
+              {loading ? "Validando…" : "Validar"}
+            </Button>
+
+            {/* Resultado */}
+            {result && (
+              <div
+                className={`mt-6 p-5 rounded-2xl border text-left ${
+                  result.ok
+                    ? "bg-emerald-50 border-emerald-200"
+                    : "bg-red-50 border-red-200"
+                }`}
+              >
+                <div className="flex items-center gap-3 mb-2.5">
+                  <span
+                    className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                      result.ok ? "bg-emerald-100" : "bg-red-100"
+                    }`}
+                  >
+                    {result.ok ? (
+                      <CheckCircle2 className="w-4.5 h-4.5 text-emerald-600" />
+                    ) : (
+                      <XCircle className="w-4.5 h-4.5 text-red-600" />
+                    )}
+                  </span>
+                  <strong className={`text-sm ${result.ok ? "text-emerald-700" : "text-red-700"}`}>
+                    {result.ok ? "Certificado válido!" : "Certificado não encontrado"}
+                  </strong>
+                </div>
+
+                {result.ok && result.certificado && (
+                  <div className="ml-12 space-y-1">
+                    <p className="text-sm text-[#374151]">
+                      <span className="font-semibold text-[#6B7280]">Nome:</span>{" "}
+                      {result.certificado.name || result.certificado.nome}
+                    </p>
+                    {result.certificado.cpf && (
+                      <p className="text-sm text-[#374151]">
+                        <span className="font-semibold text-[#6B7280]">CPF:</span> {result.certificado.cpf}
+                      </p>
+                    )}
+                    {result.certificado.date && (
+                      <p className="text-sm text-[#374151]">
+                        <span className="font-semibold text-[#6B7280]">Data:</span> {result.certificado.date}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {!result.ok && result.error && (
+                  <p className="ml-12 text-sm text-red-700">
+                    {result.error}
+                  </p>
+                )}
               </div>
             )}
-
-            {!result.ok && result.error && (
-              <p style={{ margin: "0 0 0 46px", fontSize: 14, color: "#b91c1c" }}>
-                {result.error}
-              </p>
-            )}
-          </div>
-        )}
-      </form>
-    </div>
+          </form>
+        </div>
+      </div>
+    </>
   );
 }
-
-/* ================== ESTILOS ================== */
-
-const container = {
-  minHeight: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  background: "#F7F8F9",
-  padding: "40px 20px",
-};
-
-const card = {
-  background: "white",
-  padding: "40px 36px",
-  borderRadius: 20,
-  maxWidth: 480,
-  width: "100%",
-  textAlign: "center",
-  border: "1px solid #e0e0e0",
-  boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-};
-
-const logoContainer = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 100,
-  height: 100,
-  borderRadius: 24,
-  background: "#fff",
-  border: "2px solid #e8e4e1",
-  boxShadow: "0 2px 8px rgba(122,93,83,0.08), 0 12px 40px rgba(16,24,32,0.06)",
-  marginBottom: 24,
-  position: "relative",
-  overflow: "hidden",
-};
-
-const logoAccent = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  height: 4,
-  background: "linear-gradient(90deg, #8D6E63, #101820)",
-  borderRadius: "24px 24px 0 0",
-};
-
-const logoImg = {
-  width: 62,
-  height: 62,
-  objectFit: "contain",
-  marginTop: 2,
-};
-
-const titulo = {
-  fontSize: 24,
-  fontWeight: 700,
-  color: "#101820",
-  margin: "0 0 6px 0",
-};
-
-const subtitulo = {
-  fontSize: 15,
-  color: "#888",
-  margin: "0 0 28px 0",
-  lineHeight: "1.5",
-};
-
-const label = {
-  display: "block",
-  fontSize: 13,
-  fontWeight: 600,
-  color: "#555",
-  marginBottom: 6,
-};
-
-const input = {
-  width: "100%",
-  padding: "12px 14px",
-  fontSize: 15,
-  borderRadius: 10,
-  border: "1px solid #ddd",
-  outline: "none",
-  background: "#fafafa",
-  boxSizing: "border-box",
-};
-
-const btnPrimary = {
-  padding: "14px 22px",
-  background: "#101820",
-  color: "white",
-  borderRadius: 12,
-  width: "100%",
-  fontWeight: 600,
-  fontSize: 16,
-  border: "none",
-  cursor: "pointer",
-};
-
-const resultLine = {
-  margin: "4px 0",
-  fontSize: 14,
-  color: "#333",
-};
-
-const resultLabel = {
-  fontWeight: 600,
-  color: "#555",
-};
