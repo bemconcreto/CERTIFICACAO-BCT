@@ -52,7 +52,6 @@ export default async function handler(req, res) {
         .from("users")
         .update({
           is_paid_certification: true,
-          payment_date: new Date().toISOString(),
         })
         .eq("email", email.toLowerCase());
 
