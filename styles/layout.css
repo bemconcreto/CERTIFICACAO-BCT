@@ -2,7 +2,7 @@
 
 body {
   font-family: 'Manrope', sans-serif;
-  background: #d9d9d6; /* Off White Bem Concreto */
+  background: #F7F8F9; /* Off White Bem Concreto */
   margin: 0;
   padding: 0;
   color: #101820; /* Preto petróleo */
@@ -35,7 +35,7 @@ body {
   background: none;
   border: none;
   text-align: left;
-  color: #d9d9d6;
+  color: #F7F8F9;
   padding: 12px 5px;
   cursor: pointer;
   font-size: 16px;
@@ -93,7 +93,7 @@ body {
 
 /* ATUAL */
 .module-item.current {
-  border-left-color: #7a5d53; /* Marrom oficial */
+  border-left-color: #8D6E63; /* Marrom oficial */
 }
 
 .module-title {
@@ -121,5 +121,5 @@ body {
 }
 
 .module-item button:hover:not(:disabled) {
-  background: #624b43; /* Marrom escuro */
+  background: #8D6E63; /* Marrom escuro */
 }

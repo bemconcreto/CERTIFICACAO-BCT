@@ -17,7 +17,7 @@ export default function Home() {
         minHeight: "100vh",
         justifyContent: "center",
         alignItems: "center",
-        background: "#d9d9d6",
+        background: "#F7F8F9",
         padding: "20px",
       }}
     >
@@ -59,7 +59,7 @@ export default function Home() {
               left: 0,
               right: 0,
               height: 4,
-              background: "linear-gradient(90deg, #7a5d53, #101820)",
+              background: "linear-gradient(90deg, #8D6E63, #101820)",
               borderRadius: "28px 28px 0 0",
             }}
           />
@@ -93,7 +93,7 @@ export default function Home() {
             marginBottom: 20,
             fontSize: 22,
             fontWeight: 600,
-            color: "#7a5d53",
+            color: "#8D6E63",
             letterSpacing: "2px",
             textTransform: "uppercase",
           }}
@@ -106,7 +106,7 @@ export default function Home() {
           style={{
             width: 50,
             height: 3,
-            background: "linear-gradient(90deg, #7a5d53, #624b43)",
+            background: "linear-gradient(90deg, #8D6E63, #8D6E63)",
             borderRadius: 2,
             margin: "0 auto 24px",
           }}
@@ -177,7 +177,7 @@ const btnPrimary = {
 };
 
 const btnSecondary = {
-  background: "#624b43",
+  background: "#8D6E63",
   color: "white",
   padding: "14px 25px",
   borderRadius: "10px",

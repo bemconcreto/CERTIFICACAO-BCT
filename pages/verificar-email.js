@@ -104,7 +104,7 @@ export default function VerificarEmail() {
             <div style={{
               width: "60%",
               height: "100%",
-              background: "linear-gradient(90deg, #624b43, #7a5d53)",
+              background: "linear-gradient(90deg, #8D6E63, #8D6E63)",
               borderRadius: 10,
               animation: "pulse 1.5s ease-in-out infinite",
             }} />
@@ -145,7 +145,7 @@ const container = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  background: "#d9d9d6",
+  background: "#F7F8F9",
   padding: "40px 20px",
 };
 
@@ -181,7 +181,7 @@ const logoAccent = {
   left: 0,
   right: 0,
   height: 4,
-  background: "linear-gradient(90deg, #7a5d53, #101820)",
+  background: "linear-gradient(90deg, #8D6E63, #101820)",
   borderRadius: "22px 22px 0 0",
 };
 
@@ -207,7 +207,7 @@ const btnPrimary = {
 const btnSecondary = {
   marginTop: 10,
   padding: "12px 20px",
-  background: "#624b43",
+  background: "#8D6E63",
   color: "white",
   borderRadius: 10,
   width: "100%",

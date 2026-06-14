@@ -33,7 +33,7 @@ export default function Cadastro() {
         minHeight: "100vh",
         justifyContent: "center",
         alignItems: "center",
-        background: "#d9d9d6",
+        background: "#F7F8F9",
         padding: 20,
       }}
     >
@@ -74,7 +74,7 @@ export default function Cadastro() {
               left: 0,
               right: 0,
               height: 4,
-              background: "linear-gradient(90deg, #7a5d53, #101820)",
+              background: "linear-gradient(90deg, #8D6E63, #101820)",
               borderRadius: "28px 28px 0 0",
             }}
           />
@@ -143,7 +143,7 @@ export default function Cadastro() {
         <button
           onClick={() => router.push("/")}
           style={{
-            background: "#624b43",
+            background: "#8D6E63",
             color: "white",
             padding: "14px 25px",
             borderRadius: "10px",

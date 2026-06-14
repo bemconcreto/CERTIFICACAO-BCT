@@ -37,7 +37,7 @@ export default async function handler(req, res) {
     doc.pipe(res);
 
     // ---- Bordas ----
-    doc.rect(20, 20, 555, 800).stroke("#624b43");
+    doc.rect(20, 20, 555, 800).stroke("#8D6E63");
 
     // ---- Título ----
     doc
@@ -48,7 +48,7 @@ export default async function handler(req, res) {
 
     doc
       .fontSize(12)
-      .fillColor("#624b43")
+      .fillColor("#8D6E63")
       .text("CONSULTOR CERTIFICADO", {
         align: "center",
         letterSpacing: 3
@@ -108,7 +108,7 @@ export default async function handler(req, res) {
 
     doc
       .fontSize(16)
-      .fillColor("#624b43")
+      .fillColor("#8D6E63")
       .text(`Emitido em: ${dataHoje}`, { align: "center" });
 
     doc.moveDown(3);
@@ -124,7 +124,7 @@ export default async function handler(req, res) {
     doc
       .moveDown(5)
       .fontSize(12)
-      .fillColor("#624b43")
+      .fillColor("#8D6E63")
       .text("Bem Concreto Negócios Imobiliário", {
         align: "center"
       });

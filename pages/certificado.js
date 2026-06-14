@@ -94,7 +94,7 @@ export default function Certificado() {
       temp.style.height = "1920px";
       temp.style.padding = "120px 100px";
       temp.style.background = "white";
-      temp.style.border = "8px solid #624b43";
+      temp.style.border = "8px solid #8D6E63";
       temp.style.borderRadius = "40px";
       temp.style.textAlign = "center";
       temp.style.position = "absolute";
@@ -106,9 +106,9 @@ export default function Certificado() {
 
       temp.innerHTML = `
         <h1 style="font-size:70px;font-weight:800;color:#101820;margin:0;">CONSULTOR BEM</h1>
-        <p style="font-size:32px;letter-spacing:5px;margin:10px 0;color:#624b43;">CERTIFICADO</p>
+        <p style="font-size:32px;letter-spacing:5px;margin:10px 0;color:#8D6E63;">CERTIFICADO</p>
 
-        <div style="width:320px;height:320px;border-radius:50%;border:12px solid #624b43;margin:40px auto;overflow:hidden;">
+        <div style="width:320px;height:320px;border-radius:50%;border:12px solid #8D6E63;margin:40px auto;overflow:hidden;">
           <img src="/selo.png" style="width:100%;height:100%;object-fit:cover;" />
         </div>
 
@@ -124,14 +124,14 @@ export default function Certificado() {
         </p>
 
         <p style="font-size:34px;margin-top:60px;">Emitido em:</p>
-        <strong style="font-size:40px;color:#624b43;">
+        <strong style="font-size:40px;color:#8D6E63;">
           ${new Date().toLocaleDateString()}
         </strong>
 
         <div style="margin-top:80px;">
           <img src="/assinatura.png" style="width:380px;opacity:0.9;" />
-          <div style="width:440px;height:3px;background:#624b43;margin:0 auto 10px;"></div>
-          <p style="font-size:30px;color:#624b43;">
+          <div style="width:440px;height:3px;background:#8D6E63;margin:0 auto 10px;"></div>
+          <p style="font-size:30px;color:#8D6E63;">
             Bem Concreto Negócios Imobiliário
           </p>
         </div>
@@ -205,14 +205,14 @@ export default function Certificado() {
         </p>
 
         <p style={{ marginTop: 20 }}>Emitido em:</p>
-        <strong style={{ fontSize: 18, color: "#624b43" }}>
+        <strong style={{ fontSize: 18, color: "#8D6E63" }}>
           {new Date().toLocaleDateString()}
         </strong>
 
         <div style={{ marginTop: 40 }}>
           <img src="/assinatura.png" style={{ width: 180 }} />
           <div style={linhaAssinatura} />
-          <p style={{ fontSize: 14, color: "#624b43" }}>
+          <p style={{ fontSize: 14, color: "#8D6E63" }}>
             Bem Concreto Negócios Imobiliário
           </p>
         </div>
@@ -236,7 +236,7 @@ export default function Certificado() {
 /* ---------------------- */
 const container = {
   minHeight: "100vh",
-  background: "#d9d9d6",
+  background: "#F7F8F9",
   padding: "40px 20px",
   display: "flex",
   justifyContent: "center",
@@ -248,14 +248,14 @@ const certBox = {
   background: "white",
   padding: "60px 80px",
   borderRadius: "20px",
-  border: "3px solid #624b43",
+  border: "3px solid #8D6E63",
   textAlign: "center",
 };
 
 const faixa = {
   width: "100%",
   height: "12px",
-  background: "#624b43",
+  background: "#8D6E63",
   borderRadius: "10px",
   marginBottom: "30px",
 };
@@ -273,7 +273,7 @@ const subtitulo = {
   letterSpacing: 4,
   marginTop: 0,
   marginBottom: 30,
-  color: "#624b43",
+  color: "#8D6E63",
   fontWeight: 600,
 };
 
@@ -281,7 +281,7 @@ const seloBox = {
   width: 150,
   height: 150,
   borderRadius: "50%",
-  border: "6px solid #624b43",
+  border: "6px solid #8D6E63",
   margin: "0 auto 25px",
   overflow: "hidden",
 };
@@ -310,7 +310,7 @@ const texto = {
 const linhaAssinatura = {
   width: 250,
   height: 1,
-  background: "#624b43",
+  background: "#8D6E63",
   margin: "0 auto 8px",
 };
 
@@ -326,7 +326,7 @@ const botaoPrincipal = {
 
 const botaoVoltar = {
   padding: "12px 20px",
-  background: "#624b43",
+  background: "#8D6E63",
   color: "white",
   borderRadius: "10px",
   border: "none",
@@ -340,7 +340,7 @@ const center = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  background: "#d9d9d6",
+  background: "#F7F8F9",
 };
 
 const cardErro = {
@@ -375,7 +375,7 @@ const logoAccentErro = {
   left: 0,
   right: 0,
   height: 4,
-  background: "linear-gradient(90deg, #7a5d53, #101820)",
+  background: "linear-gradient(90deg, #8D6E63, #101820)",
   borderRadius: "22px 22px 0 0",
 };
 

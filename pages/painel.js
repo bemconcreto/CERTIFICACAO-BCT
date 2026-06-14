@@ -267,7 +267,7 @@ export default function Painel() {
     <div
       style={{
         minHeight: "100vh",
-        background: "#d9d9d6",
+        background: "#F7F8F9",
         padding: "40px 20px",
         display: "flex",
         justifyContent: "center",
@@ -310,7 +310,7 @@ export default function Painel() {
               left: 0,
               right: 0,
               height: 3,
-              background: "linear-gradient(90deg, #7a5d53, #101820)",
+              background: "linear-gradient(90deg, #8D6E63, #101820)",
               borderRadius: "16px 16px 0 0",
             }} />
             <img src="/logo-bct2.png" alt="Logo" style={{ width: 36, height: 36, objectFit: "contain" }} />
@@ -343,7 +343,7 @@ export default function Painel() {
             <span style={{
               fontSize: 14,
               fontWeight: 700,
-              color: percent === 100 ? "#27ae60" : "#624b43",
+              color: percent === 100 ? "#27ae60" : "#8D6E63",
             }}>
               {percent}%
             </span>
@@ -355,7 +355,7 @@ export default function Painel() {
               width: `${percent}%`,
               background: percent === 100
                 ? "linear-gradient(90deg, #27ae60, #2ecc71)"
-                : "linear-gradient(90deg, #624b43, #7a5d53)",
+                : "linear-gradient(90deg, #8D6E63, #8D6E63)",
             }} />
           </div>
 
@@ -393,7 +393,7 @@ export default function Painel() {
               style={{
                 ...moduleCard,
                 borderLeft: `4px solid ${
-                  completed ? "#27ae60" : isCurrent ? "#624b43" : "#e0e0e0"
+                  completed ? "#27ae60" : isCurrent ? "#8D6E63" : "#e0e0e0"
                 }`,
               }}
             >
@@ -409,7 +409,7 @@ export default function Painel() {
                     fontSize: 13,
                     fontWeight: 700,
                     background: completed ? "#e8f8ef" : isCurrent ? "#f5f0ed" : "#f5f5f5",
-                    color: completed ? "#27ae60" : isCurrent ? "#624b43" : "#bbb",
+                    color: completed ? "#27ae60" : isCurrent ? "#8D6E63" : "#bbb",
                   }}>
                     {completed ? "✓" : mod.id}
                   </span>
@@ -420,7 +420,7 @@ export default function Painel() {
                 <p style={{
                   margin: "0 0 0 38px",
                   fontSize: 13,
-                  color: completed ? "#27ae60" : isCurrent ? "#624b43" : "#bbb",
+                  color: completed ? "#27ae60" : isCurrent ? "#8D6E63" : "#bbb",
                   fontWeight: 500,
                 }}>
                   {completed ? "Concluído" : isCurrent ? "Em andamento" : "Bloqueado"}
@@ -436,7 +436,7 @@ export default function Painel() {
                     ? "#eee"
                     : completed
                     ? "#27ae60"
-                    : "#624b43",
+                    : "#8D6E63",
                   color: locked ? "#bbb" : "white",
                   borderRadius: 10,
                   border: "none",
@@ -463,7 +463,7 @@ const center = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  background: "#d9d9d6",
+  background: "#F7F8F9",
 };
 
 const card = {
@@ -489,7 +489,7 @@ const btnPrimary = {
 const btnSecondary = {
   marginTop: 10,
   padding: "12px",
-  background: "#624b43",
+  background: "#8D6E63",
   color: "white",
   borderRadius: 10,
   width: "100%",
@@ -512,7 +512,7 @@ const progressBar = {
 
 const progressFill = {
   height: "100%",
-  background: "#624b43",
+  background: "#8D6E63",
 };
 
 const moduleCard = {
@@ -547,7 +547,7 @@ const logoAccent = {
   left: 0,
   right: 0,
   height: 4,
-  background: "linear-gradient(90deg, #7a5d53, #101820)",
+  background: "linear-gradient(90deg, #8D6E63, #101820)",
   borderRadius: "28px 28px 0 0",
 };
 

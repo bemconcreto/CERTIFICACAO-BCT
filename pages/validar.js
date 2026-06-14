@@ -115,7 +115,7 @@ const container = {
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
-  background: "#d9d9d6",
+  background: "#F7F8F9",
   padding: "40px 20px",
 };
 
@@ -151,7 +151,7 @@ const logoAccent = {
   left: 0,
   right: 0,
   height: 4,
-  background: "linear-gradient(90deg, #7a5d53, #101820)",
+  background: "linear-gradient(90deg, #8D6E63, #101820)",
   borderRadius: "24px 24px 0 0",
 };
 
