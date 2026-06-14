@@ -3,6 +3,10 @@ import { modules } from "../../lib/modules";
 import { useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import Head from "next/head";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Modulo() {
   const router = useRouter();
@@ -61,70 +65,70 @@ export default function Modulo() {
 
   if (!modulo) {
     return (
-      <div style={{ padding: 40, fontSize: 18 }}>
-        Carregando módulo...
+      <div className="min-h-screen flex items-center justify-center bg-[#F7F8F9]">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-6 h-6 text-[#8D6E63] animate-spin" />
+          <p className="text-sm text-[#6B7280]">Carregando módulo...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div style={{ padding: "40px", maxWidth: 900, margin: "0 auto" }}>
-      <h1 style={{ fontSize: 32, marginBottom: 20 }}>
-        {modulo.title}
-      </h1>
+    <div className="min-h-screen bg-[#F7F8F9] flex justify-center px-5 py-10">
+      <Head>
+        <title>{modulo.title} | Certificação BEM Concreto</title>
+        <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
+      </Head>
 
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm]}
-        components={{
-          h1: ({ node, ...props }) => (
-            <h1 style={{ fontSize: "28px", marginTop: 30 }} {...props} />
-          ),
-          h2: ({ node, ...props }) => (
-            <h2 style={{ fontSize: "24px", marginTop: 25 }} {...props} />
-          ),
-          h3: ({ node, ...props }) => (
-            <h3 style={{ fontSize: "20px", marginTop: 20 }} {...props} />
-          ),
-          p: ({ node, ...props }) => (
-            <p style={{ marginBottom: 14, lineHeight: 1.6 }} {...props} />
-          ),
-          ul: ({ node, ...props }) => (
-            <ul style={{ marginBottom: 14, paddingLeft: 22 }} {...props} />
-          ),
-          li: ({ node, ...props }) => (
-            <li style={{ marginBottom: 6 }} {...props} />
-          ),
-          hr: ({ node, ...props }) => (
-            <hr
-              style={{
-                margin: "30px 0",
-                border: 0,
-                borderBottom: "1px solid #ccc",
+      <div className="w-full max-w-[900px] flex flex-col gap-6">
+        <div>
+          <h1 className="text-2xl font-bold text-[#101820] tracking-tight">
+            {modulo.title}
+          </h1>
+        </div>
+
+        <Card>
+          <CardContent>
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              components={{
+                h1: ({ node, ...props }) => (
+                  <h1 className="text-xl font-bold text-[#101820] mt-8 mb-3" {...props} />
+                ),
+                h2: ({ node, ...props }) => (
+                  <h2 className="text-lg font-bold text-[#101820] mt-7 mb-2.5" {...props} />
+                ),
+                h3: ({ node, ...props }) => (
+                  <h3 className="text-base font-semibold text-[#101820] mt-6 mb-2" {...props} />
+                ),
+                p: ({ node, ...props }) => (
+                  <p className="text-sm text-[#374151] leading-relaxed mb-3.5" {...props} />
+                ),
+                ul: ({ node, ...props }) => (
+                  <ul className="text-sm text-[#374151] leading-relaxed mb-3.5 pl-5 list-disc space-y-1.5" {...props} />
+                ),
+                li: ({ node, ...props }) => (
+                  <li {...props} />
+                ),
+                hr: ({ node, ...props }) => (
+                  <hr className="my-8 border-t border-[#E5E7EB]" {...props} />
+                ),
               }}
-              {...props}
-            />
-          ),
-        }}
-      >
-        {modulo.content}
-      </ReactMarkdown>
+            >
+              {modulo.content}
+            </ReactMarkdown>
+          </CardContent>
+        </Card>
 
-      {/* BOTÃO PARA PROVA */}
-      <button
-        onClick={() => router.push(`/prova/${modulo.id}`)}
-        style={{
-          marginTop: 30,
-          padding: "14px 22px",
-          background: "#101820",
-          color: "white",
-          borderRadius: 10,
-          fontSize: 18,
-          border: "none",
-          cursor: "pointer",
-        }}
-      >
-        Iniciar Prova do Módulo
-      </button>
+        {/* BOTÃO PARA PROVA */}
+        <Button
+          onClick={() => router.push(`/prova/${modulo.id}`)}
+          className="w-full sm:w-auto self-start rounded-xl bg-gradient-to-r from-[#8D6E63] to-[#8D6E63]/85 text-white font-semibold text-sm px-6 py-3.5 h-auto shadow-md shadow-[#8D6E63]/20 hover:shadow-lg hover:shadow-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+        >
+          Iniciar Prova do Módulo
+        </Button>
+      </div>
     </div>
   );
 }

@@ -1,7 +1,19 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { CheckCircle2, Lock, Loader2, Copy, GraduationCap } from "lucide-react";
 import { modules } from "../lib/modules";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 export default function Painel() {
   const router = useRouter();
@@ -155,12 +167,15 @@ export default function Painel() {
   const percent = Math.round((progresso.length / totalModulos) * 100);
 
   if (loading) return (
-    <div style={center}>
+    <div className="min-h-screen flex items-center justify-center bg-[#F7F8F9]">
       <Head>
         <title>Painel | Certificação BEM Concreto</title>
         <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
       </Head>
-      <p style={{ fontSize: 18, color: "#555" }}>Carregando painel…</p>
+      <div className="flex flex-col items-center gap-3">
+        <Loader2 className="w-6 h-6 text-[#8D6E63] animate-spin" />
+        <p className="text-sm text-[#6B7280]">Carregando painel…</p>
+      </div>
     </div>
   );
 
@@ -169,17 +184,23 @@ export default function Painel() {
   // ======================================================
   if (pagamentoConfirmado) {
     return (
-      <div style={center}>
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#F7F8F9] p-5">
         <Head>
           <title>Pagamento Confirmado | BEM Concreto</title>
           <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
         </Head>
-        <div style={card}>
-          <div style={{ fontSize: 48, marginBottom: 16 }}>✅</div>
-          <h2 style={{ color: "#27ae60", fontSize: 24, fontWeight: 700, marginBottom: 8 }}>
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute top-[-120px] left-[-80px] w-[500px] h-[500px] rounded-full bg-[#8D6E63]/[0.07] blur-[120px]" />
+          <div className="absolute bottom-[-100px] right-[-60px] w-[400px] h-[400px] rounded-full bg-[#CBA35C]/[0.06] blur-[100px]" />
+        </div>
+        <div className="relative w-full max-w-[440px] bg-white/80 backdrop-blur-xl rounded-3xl border border-[#E5E7EB]/60 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
+          <div className="w-16 h-16 rounded-full bg-emerald-50 flex items-center justify-center mx-auto mb-5">
+            <CheckCircle2 className="w-7 h-7 text-emerald-600" />
+          </div>
+          <h2 className="text-xl font-bold text-emerald-700 mb-2">
             Pagamento Confirmado!
           </h2>
-          <p style={{ color: "#666", fontSize: 15, lineHeight: "1.6" }}>
+          <p className="text-sm text-[#6B7280] leading-relaxed">
             Seu acesso foi liberado com sucesso. Prepare-se para iniciar sua certificação.
           </p>
         </div>
@@ -192,70 +213,89 @@ export default function Painel() {
   // ======================================================
   if (!usuario?.is_paid_certification) {
     return (
-      <div style={center}>
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#F7F8F9] p-5">
         <Head>
           <title>Pagamento | Certificação BEM Concreto</title>
           <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
         </Head>
-        <div style={card}>
-          {/* Logo */}
-          <div style={logoContainer}>
-            <div style={logoAccent} />
-            <img src="/logo-bct2.png" alt="Logo BEM" style={logoImg} />
-          </div>
 
-          <h2 style={{ fontSize: 24, fontWeight: 700, color: "#101820", marginBottom: 8 }}>
-            Falta pouco!
-          </h2>
-          <p style={{ color: "#666", fontSize: 15, lineHeight: "1.6", marginBottom: 24 }}>
-            Finalize o pagamento único para liberar todos os módulos da certificação.
-          </p>
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute top-[-120px] left-[-80px] w-[500px] h-[500px] rounded-full bg-[#8D6E63]/[0.07] blur-[120px]" />
+          <div className="absolute bottom-[-100px] right-[-60px] w-[400px] h-[400px] rounded-full bg-[#CBA35C]/[0.06] blur-[100px]" />
+          <div className="absolute top-[40%] left-[60%] w-[300px] h-[300px] rounded-full bg-[#8D6E63]/[0.04] blur-[80px]" />
+        </div>
 
-          <div style={{
-            background: "#f8f6f5",
-            borderRadius: 14,
-            padding: "20px 24px",
-            marginBottom: 28,
-            border: "1px solid #e8e4e1",
-          }}>
-            <p style={{ fontSize: 13, color: "#888", margin: 0, marginBottom: 4 }}>Valor da certificação</p>
-            <h1 style={{ fontSize: 36, color: "#101820", fontWeight: 800, margin: 0 }}>
-              R$ 17,77
-            </h1>
-          </div>
+        <div className="relative w-full max-w-[440px]">
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-[#E5E7EB]/60 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
+            {/* Logo */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="relative mb-4">
+                <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-[#8D6E63]/20 to-[#CBA35C]/10 blur-xl" />
+                <div className="relative w-24 h-24 rounded-2xl bg-white border border-[#E5E7EB]/60 flex items-center justify-center shadow-sm overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8D6E63] to-[#101820]" />
+                  <img src="/logo-bct2.png" alt="Logo BEM" className="w-14 h-14 object-contain" />
+                </div>
+              </div>
 
-          <button style={btnPrimary} onClick={gerarPagamento}>
-            Pagar via PIX
-          </button>
-
-          {modalPix && pagamento && (
-            <div style={{
-              marginTop: 20,
-              background: "#f9f9f9",
-              borderRadius: 12,
-              padding: 20,
-              border: "1px solid #e0e0e0",
-            }}>
-              <p style={{ fontSize: 13, color: "#888", margin: "0 0 8px 0" }}>Código PIX Copia e Cola:</p>
-              <textarea
-                readOnly
-                value={pagamento.pixCopyPaste}
-                style={textarea}
-              />
-              <button
-                style={btnSecondary}
-                onClick={() =>
-                  navigator.clipboard.writeText(pagamento.pixCopyPaste)
-                }
-              >
-                📋 Copiar código PIX
-              </button>
-              <p style={{ fontSize: 12, color: "#aaa", marginTop: 12, marginBottom: 0 }}>
-                Aguardando confirmação do pagamento…
+              <h2 className="text-2xl font-bold text-[#101820] tracking-tight">
+                Falta pouco!
+              </h2>
+              <p className="text-sm text-[#6B7280] mt-1.5">
+                Finalize o pagamento único para liberar todos os módulos da certificação.
               </p>
             </div>
-          )}
+
+            <div className="rounded-2xl border border-[#E5E7EB]/60 bg-[#8D6E63]/[0.04] px-6 py-5 mb-6">
+              <p className="text-xs text-[#6B7280] mb-1">Valor da certificação</p>
+              <h1 className="text-3xl font-extrabold text-[#101820]">R$ 17,77</h1>
+            </div>
+
+            <Button
+              onClick={gerarPagamento}
+              className="w-full rounded-xl bg-gradient-to-r from-[#8D6E63] to-[#8D6E63]/85 text-white font-semibold text-sm py-3.5 h-auto shadow-md shadow-[#8D6E63]/20 hover:shadow-lg hover:shadow-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+            >
+              Pagar via PIX
+            </Button>
+
+            <p className="mt-7 text-xs text-[#9CA3AF] tracking-wide">
+              Plataforma oficial de certificação BEM Concreto
+            </p>
+          </div>
         </div>
+
+        <Dialog
+          open={modalPix && !!pagamento}
+          onOpenChange={(open) => !open && setModalPix(false)}
+        >
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Pagamento via PIX</DialogTitle>
+              <DialogDescription>
+                Copie o código abaixo no app do seu banco para concluir o pagamento.
+              </DialogDescription>
+            </DialogHeader>
+
+            <textarea
+              readOnly
+              value={pagamento?.pixCopyPaste || ""}
+              className="w-full h-32 rounded-xl border border-[#E5E7EB] bg-[#FAFAFA] p-3 text-xs text-[#374151] resize-none focus:outline-none"
+            />
+
+            <Button
+              variant="outline"
+              onClick={() => navigator.clipboard.writeText(pagamento?.pixCopyPaste || "")}
+              className="w-full rounded-xl bg-white border-[#E5E7EB] text-[#101820] font-medium text-sm py-3.5 h-auto shadow-sm hover:shadow-md hover:border-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+            >
+              <Copy className="w-4 h-4" />
+              Copiar código PIX
+            </Button>
+
+            <p className="flex items-center justify-center gap-2 text-xs text-[#9CA3AF]">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              Aguardando confirmação do pagamento…
+            </p>
+          </DialogContent>
+        </Dialog>
       </div>
     );
   }
@@ -264,296 +304,141 @@ export default function Painel() {
   // 🎓 PAINEL COMPLETO
   // ======================================================
   return (
-    <div
-      style={{
-        minHeight: "100vh",
-        background: "#F7F8F9",
-        padding: "40px 20px",
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
+    <div className="min-h-screen bg-[#F7F8F9] flex justify-center px-5 py-10">
       <Head>
         <title>Painel | Certificação BEM Concreto</title>
         <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
       </Head>
 
-      <div style={{ width: "100%", maxWidth: "900px" }}>
+      <div className="w-full max-w-[900px] flex flex-col gap-6">
         {/* Header */}
-        <div style={{
-          background: "white",
-          borderRadius: 20,
-          padding: "35px 40px",
-          marginBottom: 24,
-          border: "1px solid #e0e0e0",
-          boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-          display: "flex",
-          alignItems: "center",
-          gap: 24,
-        }}>
-          <div style={{
-            width: 56,
-            height: 56,
-            borderRadius: 16,
-            background: "#f8f6f5",
-            border: "2px solid #e8e4e1",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            flexShrink: 0,
-            overflow: "hidden",
-            position: "relative",
-          }}>
-            <div style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              height: 3,
-              background: "linear-gradient(90deg, #8D6E63, #101820)",
-              borderRadius: "16px 16px 0 0",
-            }} />
-            <img src="/logo-bct2.png" alt="Logo" style={{ width: 36, height: 36, objectFit: "contain" }} />
-          </div>
-          <div>
-            <h1 style={{ fontSize: 26, fontWeight: 700, color: "#101820", margin: 0 }}>
-              Olá, {usuario?.name?.split(" ")[0]} 👋
-            </h1>
-            <p style={{ color: "#888", margin: "4px 0 0 0", fontSize: 14 }}>
-              Acompanhe sua jornada de certificação BEM Concreto.
-            </p>
-          </div>
-        </div>
+        <Card>
+          <CardContent className="flex items-center gap-5">
+            <div className="relative w-14 h-14 rounded-2xl bg-white border border-[#E5E7EB]/60 flex items-center justify-center shadow-sm overflow-hidden shrink-0">
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8D6E63] to-[#101820]" />
+              <img src="/logo-bct2.png" alt="Logo" className="w-8 h-8 object-contain" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-[#101820] tracking-tight">
+                Olá, {usuario?.name?.split(" ")[0]} 👋
+              </h1>
+              <p className="text-sm text-[#6B7280] mt-1">
+                Acompanhe sua jornada de certificação BEM Concreto.
+              </p>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Barra de progresso */}
-        <div
-          style={{
-            background: "white",
-            padding: "30px 40px",
-            borderRadius: 20,
-            border: "1px solid #e0e0e0",
-            boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-            marginBottom: 24,
-          }}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-            <h2 style={{ margin: 0, fontSize: 18, fontWeight: 700, color: "#101820" }}>
-              Progresso da Certificação
-            </h2>
-            <span style={{
-              fontSize: 14,
-              fontWeight: 700,
-              color: percent === 100 ? "#27ae60" : "#8D6E63",
-            }}>
-              {percent}%
-            </span>
-          </div>
+        <Card>
+          <CardContent className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-bold text-[#101820]">
+                Progresso da Certificação
+              </h2>
+              <span className={cn("text-sm font-bold", percent === 100 ? "text-emerald-600" : "text-[#8D6E63]")}>
+                {percent}%
+              </span>
+            </div>
 
-          <div style={progressBar}>
-            <div style={{
-              ...progressFill,
-              width: `${percent}%`,
-              background: percent === 100
-                ? "linear-gradient(90deg, #27ae60, #2ecc71)"
-                : "linear-gradient(90deg, #8D6E63, #8D6E63)",
-            }} />
-          </div>
+            <Progress
+              value={percent}
+              className={cn("h-2.5", percent === 100 && "[&>[data-slot=progress-indicator]]:bg-emerald-500")}
+            />
 
-          <p style={{ fontSize: 13, color: "#aaa", margin: "12px 0 20px 0" }}>
-            {progresso.length} de {totalModulos} módulos concluídos
-          </p>
+            <p className="text-xs text-[#9CA3AF]">
+              {progresso.length} de {totalModulos} módulos concluídos
+            </p>
 
-          <button
-            onClick={() =>
-              atual === "concluido"
-                ? router.push("/certificado")
-                : router.push(`/modulos/${atual}`)
-            }
-            style={btnPrimary}
-          >
-            {atual === "concluido"
-              ? "🎓 Emitir Certificado"
-              : `Continuar Módulo ${atual}`}
-          </button>
-        </div>
+            <Button
+              onClick={() =>
+                atual === "concluido"
+                  ? router.push("/certificado")
+                  : router.push(`/modulos/${atual}`)
+              }
+              className="w-full rounded-xl bg-gradient-to-r from-[#8D6E63] to-[#8D6E63]/85 text-white font-semibold text-sm py-3.5 h-auto shadow-md shadow-[#8D6E63]/20 hover:shadow-lg hover:shadow-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+            >
+              {atual === "concluido" ? (
+                <>
+                  <GraduationCap className="w-4 h-4" />
+                  Emitir Certificado
+                </>
+              ) : (
+                `Continuar Módulo ${atual}`
+              )}
+            </Button>
+          </CardContent>
+        </Card>
 
         {/* Lista de módulos */}
-        <h3 style={{ fontSize: 16, fontWeight: 700, color: "#101820", marginBottom: 16, marginTop: 32 }}>
-          Módulos da Certificação
-        </h3>
+        <div>
+          <h3 className="text-sm font-bold text-[#101820] mb-3">
+            Módulos da Certificação
+          </h3>
 
-        {modules.map((mod) => {
-          const completed = progresso.includes(mod.id);
-          const isCurrent = mod.id === atual;
-          const locked = !completed && mod.id > atual;
+          <div className="flex flex-col gap-3">
+            {modules.map((mod) => {
+              const completed = progresso.includes(mod.id);
+              const isCurrent = mod.id === atual;
+              const locked = !completed && mod.id > atual;
 
-          return (
-            <div
-              key={mod.id}
-              style={{
-                ...moduleCard,
-                borderLeft: `4px solid ${
-                  completed ? "#27ae60" : isCurrent ? "#8D6E63" : "#e0e0e0"
-                }`,
-              }}
-            >
-              <div style={{ flex: 1 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
-                  <span style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    width: 28,
-                    height: 28,
-                    borderRadius: 8,
-                    fontSize: 13,
-                    fontWeight: 700,
-                    background: completed ? "#e8f8ef" : isCurrent ? "#f5f0ed" : "#f5f5f5",
-                    color: completed ? "#27ae60" : isCurrent ? "#8D6E63" : "#bbb",
-                  }}>
-                    {completed ? "✓" : mod.id}
-                  </span>
-                  <strong style={{ fontSize: 15, color: locked ? "#bbb" : "#101820" }}>
-                    {mod.title}
-                  </strong>
-                </div>
-                <p style={{
-                  margin: "0 0 0 38px",
-                  fontSize: 13,
-                  color: completed ? "#27ae60" : isCurrent ? "#8D6E63" : "#bbb",
-                  fontWeight: 500,
-                }}>
-                  {completed ? "Concluído" : isCurrent ? "Em andamento" : "Bloqueado"}
-                </p>
-              </div>
+              return (
+                <Card
+                  key={mod.id}
+                  className={cn(
+                    "py-0 border-l-4",
+                    completed ? "border-l-emerald-500" : isCurrent ? "border-l-[#8D6E63]" : "border-l-[#E5E7EB]"
+                  )}
+                >
+                  <CardContent className="flex items-center justify-between gap-4 py-4">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <span
+                        className={cn(
+                          "flex items-center justify-center w-8 h-8 rounded-lg text-sm font-bold shrink-0",
+                          completed
+                            ? "bg-emerald-50 text-emerald-600"
+                            : isCurrent
+                            ? "bg-[#8D6E63]/10 text-[#8D6E63]"
+                            : "bg-[#F5F5F5] text-[#BBBBBB]"
+                        )}
+                      >
+                        {completed ? <CheckCircle2 className="w-4 h-4" /> : mod.id}
+                      </span>
+                      <div className="min-w-0">
+                        <p className={cn("text-sm font-semibold truncate", locked ? "text-[#BBBBBB]" : "text-[#101820]")}>
+                          {mod.title}
+                        </p>
+                        <p
+                          className={cn(
+                            "text-xs font-medium",
+                            completed ? "text-emerald-600" : isCurrent ? "text-[#8D6E63]" : "text-[#BBBBBB]"
+                          )}
+                        >
+                          {completed ? "Concluído" : isCurrent ? "Em andamento" : "Bloqueado"}
+                        </p>
+                      </div>
+                    </div>
 
-              <button
-                disabled={locked}
-                onClick={() => router.push(`/modulos/${mod.id}`)}
-                style={{
-                  padding: "10px 20px",
-                  background: locked
-                    ? "#eee"
-                    : completed
-                    ? "#27ae60"
-                    : "#8D6E63",
-                  color: locked ? "#bbb" : "white",
-                  borderRadius: 10,
-                  border: "none",
-                  cursor: locked ? "not-allowed" : "pointer",
-                  fontSize: 14,
-                  fontWeight: 600,
-                  transition: "all 0.2s",
-                }}
-              >
-                {completed ? "Revisar" : locked ? "🔒" : "Acessar"}
-              </button>
-            </div>
-          );
-        })}
+                    <Button
+                      disabled={locked}
+                      onClick={() => router.push(`/modulos/${mod.id}`)}
+                      size="sm"
+                      variant={completed ? "outline" : locked ? "ghost" : "default"}
+                      className={cn(
+                        "rounded-lg font-semibold",
+                        completed && "border-emerald-200 text-emerald-600 bg-white hover:bg-emerald-50",
+                        !completed && !locked && "bg-[#8D6E63] hover:bg-[#8D6E63]/90 text-white shadow-none"
+                      )}
+                    >
+                      {completed ? "Revisar" : locked ? <Lock className="w-4 h-4" /> : "Acessar"}
+                    </Button>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
-
-/* ================== ESTILOS ================== */
-
-const center = {
-  minHeight: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  background: "#F7F8F9",
-};
-
-const card = {
-  background: "white",
-  padding: 30,
-  borderRadius: 16,
-  maxWidth: 500,
-  width: "100%",
-  textAlign: "center",
-  border: "1px solid #ccc",
-};
-
-const btnPrimary = {
-  marginTop: 20,
-  padding: "14px 22px",
-  background: "#101820",
-  color: "white",
-  borderRadius: 12,
-  width: "100%",
-  fontWeight: 600,
-};
-
-const btnSecondary = {
-  marginTop: 10,
-  padding: "12px",
-  background: "#8D6E63",
-  color: "white",
-  borderRadius: 10,
-  width: "100%",
-};
-
-const textarea = {
-  width: "100%",
-  height: 120,
-  marginTop: 10,
-};
-
-const progressBar = {
-  width: "100%",
-  height: 18,
-  background: "#eee",
-  borderRadius: 20,
-  overflow: "hidden",
-  marginBottom: 20,
-};
-
-const progressFill = {
-  height: "100%",
-  background: "#8D6E63",
-};
-
-const moduleCard = {
-  background: "white",
-  padding: 20,
-  marginBottom: 14,
-  borderRadius: 12,
-  border: "1px solid #ccc",
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-};
-
-const logoContainer = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 120,
-  height: 120,
-  borderRadius: 28,
-  background: "#fff",
-  border: "2px solid #e8e4e1",
-  boxShadow: "0 2px 8px rgba(122,93,83,0.08), 0 12px 40px rgba(16,24,32,0.06)",
-  marginBottom: 30,
-  position: "relative",
-  overflow: "hidden",
-};
-
-const logoAccent = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  height: 4,
-  background: "linear-gradient(90deg, #8D6E63, #101820)",
-  borderRadius: "28px 28px 0 0",
-};
-
-const logoImg = {
-  width: 75,
-  height: 75,
-  objectFit: "contain",
-  marginTop: 2,
-};
