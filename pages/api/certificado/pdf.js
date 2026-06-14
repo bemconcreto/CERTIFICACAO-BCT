@@ -94,7 +94,7 @@ export default async function handler(req, res) {
       .fontSize(16)
       .fillColor("#333")
       .text(
-        `Concluiu oficialmente todos os 11 módulos da Certificação do Consultor BCT, adquirindo direito de atuar com comissão de 4%.`,
+        `Concluiu oficialmente todos os 11 módulos da Certificação do Consultor BEM, adquirindo direito de atuar com comissão de 4%.`,
         {
           align: "center",
           width: 450

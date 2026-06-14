@@ -8,7 +8,7 @@ export default async function handler(req, res) {
   const code = Math.floor(100000 + Math.random() * 900000);
 
   await client.messages.create({
-    body: `Seu código BCT é: ${code}`,
+    body: `Seu código BEM é: ${code}`,
     from: process.env.TWILIO_PHONE,
     to: "+55" + phone
   });

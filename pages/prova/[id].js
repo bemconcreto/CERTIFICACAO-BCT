@@ -60,7 +60,7 @@ export default function Prova() {
           body: JSON.stringify({
             email,
             modulesCount: 11,
-            note: "Concluiu toda certificação BCT",
+            note: "Concluiu toda certificação BEM",
           }),
         });
       } catch (err) {
