@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
+import { AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export default function Checkout() {
   const router = useRouter();
@@ -41,235 +44,133 @@ export default function Checkout() {
   }
 
   return (
-    <div style={container}>
+    <>
       <Head>
         <title>Criar Conta | Certificação BEM Concreto</title>
         <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
       </Head>
 
-      <form onSubmit={submit} style={card}>
-        {/* Logo */}
-        <div style={logoContainer}>
-          <div style={logoAccent} />
-          <img src="/logo-bct2.png" alt="Logo BEM" style={logoImg} />
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#F7F8F9] p-5">
+        {/* Background decorations */}
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute top-[-120px] left-[-80px] w-[500px] h-[500px] rounded-full bg-[#8D6E63]/[0.07] blur-[120px]" />
+          <div className="absolute bottom-[-100px] right-[-60px] w-[400px] h-[400px] rounded-full bg-[#CBA35C]/[0.06] blur-[100px]" />
+          <div className="absolute top-[40%] left-[60%] w-[300px] h-[300px] rounded-full bg-[#8D6E63]/[0.04] blur-[80px]" />
         </div>
 
-        <h1 style={titulo}>Criar Conta</h1>
-        <p style={subtitulo}>
-          Preencha seus dados para iniciar a certificação.
-        </p>
+        <div className="relative w-full max-w-[460px]">
+          <form
+            onSubmit={submit}
+            className="bg-white/80 backdrop-blur-xl rounded-3xl border border-[#E5E7EB]/60 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center"
+          >
+            {/* Logo */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="relative mb-4">
+                <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-[#8D6E63]/20 to-[#CBA35C]/10 blur-xl" />
+                <div className="relative w-24 h-24 rounded-2xl bg-white border border-[#E5E7EB]/60 flex items-center justify-center shadow-sm overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8D6E63] to-[#101820]" />
+                  <img src="/logo-bct2.png" alt="Logo BEM" className="w-14 h-14 object-contain" />
+                </div>
+              </div>
 
-        {erro && (
-          <div style={erroBox}>
-            <span style={{ fontSize: 14 }}>⚠</span> {erro}
-          </div>
-        )}
+              <h1 className="text-2xl font-bold text-[#101820] tracking-tight">
+                Criar Conta
+              </h1>
+              <p className="text-sm text-[#6B7280] mt-1.5">
+                Preencha seus dados para iniciar a certificação.
+              </p>
+            </div>
 
-        <div style={inputGroup}>
-          <label style={label}>Nome completo</label>
-          <input
-            type="text"
-            placeholder="Seu nome"
-            value={form.name}
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-            style={input}
-          />
+            {erro && (
+              <div className="flex items-center gap-2 text-left bg-red-50 border border-red-200 rounded-xl px-4 py-2.5 mb-5 text-sm text-red-700">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                {erro}
+              </div>
+            )}
+
+            <div className="space-y-4 text-left">
+              <div>
+                <label className="block text-xs font-semibold text-[#6B7280] mb-1.5">
+                  Nome completo
+                </label>
+                <Input
+                  type="text"
+                  placeholder="Seu nome"
+                  value={form.name}
+                  onChange={(e) => setForm({ ...form, name: e.target.value })}
+                  className="h-11 rounded-xl border-[#E5E7EB] bg-[#FAFAFA] text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#6B7280] mb-1.5">
+                  CPF
+                </label>
+                <Input
+                  type="text"
+                  placeholder="000.000.000-00"
+                  value={form.cpf}
+                  onChange={(e) => setForm({ ...form, cpf: e.target.value })}
+                  className="h-11 rounded-xl border-[#E5E7EB] bg-[#FAFAFA] text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#6B7280] mb-1.5">
+                  E-mail
+                </label>
+                <Input
+                  type="email"
+                  placeholder="seu@email.com"
+                  value={form.email}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="h-11 rounded-xl border-[#E5E7EB] bg-[#FAFAFA] text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-[#6B7280] mb-1.5">
+                  Senha
+                </label>
+                <Input
+                  type="password"
+                  placeholder="Crie uma senha"
+                  value={form.pass}
+                  onChange={(e) => setForm({ ...form, pass: e.target.value })}
+                  className="h-11 rounded-xl border-[#E5E7EB] bg-[#FAFAFA] text-sm"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-3 mt-6">
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full rounded-xl bg-gradient-to-r from-[#8D6E63] to-[#8D6E63]/85 text-white font-semibold text-sm py-3.5 h-auto shadow-md shadow-[#8D6E63]/20 hover:shadow-lg hover:shadow-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+              >
+                {loading ? "Criando conta…" : "Cadastrar"}
+              </Button>
+
+              <Button
+                type="button"
+                onClick={() => router.push("/login")}
+                variant="outline"
+                className="w-full rounded-xl bg-white border-[#E5E7EB] text-[#101820] font-medium text-sm py-3.5 h-auto shadow-sm hover:shadow-md hover:border-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+              >
+                Já tenho conta → Entrar
+              </Button>
+
+              <button
+                type="button"
+                onClick={() => router.push("/")}
+                className="text-sm text-[#9CA3AF] hover:text-[#6B7280] transition-colors"
+              >
+                ← Voltar ao início
+              </button>
+            </div>
+          </form>
         </div>
-
-        <div style={inputGroup}>
-          <label style={label}>CPF</label>
-          <input
-            type="text"
-            placeholder="000.000.000-00"
-            value={form.cpf}
-            onChange={(e) => setForm({ ...form, cpf: e.target.value })}
-            style={input}
-          />
-        </div>
-
-        <div style={inputGroup}>
-          <label style={label}>E-mail</label>
-          <input
-            type="email"
-            placeholder="seu@email.com"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            style={input}
-          />
-        </div>
-
-        <div style={inputGroup}>
-          <label style={label}>Senha</label>
-          <input
-            type="password"
-            placeholder="Crie uma senha"
-            value={form.pass}
-            onChange={(e) => setForm({ ...form, pass: e.target.value })}
-            style={input}
-          />
-        </div>
-
-        <button type="submit" disabled={loading} style={btnPrimary}>
-          {loading ? "Criando conta…" : "Cadastrar"}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => router.push("/login")}
-          style={btnSecondary}
-        >
-          Já tenho conta → Entrar
-        </button>
-
-        <button
-          type="button"
-          onClick={() => router.push("/")}
-          style={btnLink}
-        >
-          ← Voltar ao início
-        </button>
-      </form>
-    </div>
+      </div>
+    </>
   );
 }
-
-/* ================== ESTILOS ================== */
-
-const container = {
-  minHeight: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  background: "#F7F8F9",
-  padding: "40px 20px",
-};
-
-const card = {
-  background: "white",
-  padding: "40px 36px",
-  borderRadius: 20,
-  maxWidth: 460,
-  width: "100%",
-  textAlign: "center",
-  border: "1px solid #e0e0e0",
-  boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-};
-
-const logoContainer = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 100,
-  height: 100,
-  borderRadius: 24,
-  background: "#fff",
-  border: "2px solid #e8e4e1",
-  boxShadow: "0 2px 8px rgba(122,93,83,0.08), 0 12px 40px rgba(16,24,32,0.06)",
-  marginBottom: 24,
-  position: "relative",
-  overflow: "hidden",
-};
-
-const logoAccent = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  height: 4,
-  background: "linear-gradient(90deg, #8D6E63, #101820)",
-  borderRadius: "24px 24px 0 0",
-};
-
-const logoImg = {
-  width: 62,
-  height: 62,
-  objectFit: "contain",
-  marginTop: 2,
-};
-
-const titulo = {
-  fontSize: 24,
-  fontWeight: 700,
-  color: "#101820",
-  margin: "0 0 6px 0",
-};
-
-const subtitulo = {
-  fontSize: 15,
-  color: "#888",
-  margin: "0 0 28px 0",
-  lineHeight: "1.5",
-};
-
-const erroBox = {
-  background: "#fef3f2",
-  border: "1px solid #fecaca",
-  borderRadius: 10,
-  padding: "10px 14px",
-  marginBottom: 20,
-  fontSize: 14,
-  color: "#b91c1c",
-  textAlign: "left",
-};
-
-const inputGroup = {
-  marginBottom: 18,
-  textAlign: "left",
-};
-
-const label = {
-  display: "block",
-  fontSize: 13,
-  fontWeight: 600,
-  color: "#555",
-  marginBottom: 6,
-};
-
-const input = {
-  width: "100%",
-  padding: "12px 14px",
-  fontSize: 15,
-  borderRadius: 10,
-  border: "1px solid #ddd",
-  outline: "none",
-  background: "#fafafa",
-  boxSizing: "border-box",
-  transition: "border 0.2s",
-};
-
-const btnPrimary = {
-  marginTop: 8,
-  padding: "14px 22px",
-  background: "#101820",
-  color: "white",
-  borderRadius: 12,
-  width: "100%",
-  fontWeight: 600,
-  fontSize: 16,
-  border: "none",
-  cursor: "pointer",
-};
-
-const btnSecondary = {
-  marginTop: 10,
-  padding: "12px 20px",
-  background: "#8D6E63",
-  color: "white",
-  borderRadius: 10,
-  width: "100%",
-  fontWeight: 600,
-  fontSize: 15,
-  border: "none",
-  cursor: "pointer",
-};
-
-const btnLink = {
-  marginTop: 16,
-  padding: 0,
-  background: "none",
-  color: "#888",
-  border: "none",
-  cursor: "pointer",
-  fontSize: 14,
-  fontWeight: 500,
-};

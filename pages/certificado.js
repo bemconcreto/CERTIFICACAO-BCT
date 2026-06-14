@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import * as htmlToImage from "html-to-image";
+import { Loader2, Share2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Certificado() {
   const router = useRouter();
@@ -41,42 +43,70 @@ export default function Certificado() {
   }, []);
 
   if (loading) {
-    return <div style={{ padding: 40 }}>Gerando certificado…</div>;
-  }
-
-  if (!user) {
     return (
-      <div style={center}>
+      <div className="min-h-screen flex items-center justify-center bg-[#F7F8F9]">
         <Head>
           <title>Certificado | BEM Concreto</title>
           <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
         </Head>
-        <div style={cardErro}>
-          {/* Logo */}
-          <div style={logoContainerErro}>
-            <div style={logoAccentErro} />
-            <img src="/logo-bct2.png" alt="Logo BEM" style={logoImgErro} />
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-6 h-6 text-[#8D6E63] animate-spin" />
+          <p className="text-sm text-[#6B7280]">Gerando certificado…</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#F7F8F9] p-5">
+        <Head>
+          <title>Certificado | BEM Concreto</title>
+          <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
+        </Head>
+
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <div className="absolute top-[-120px] left-[-80px] w-[500px] h-[500px] rounded-full bg-[#8D6E63]/[0.07] blur-[120px]" />
+          <div className="absolute bottom-[-100px] right-[-60px] w-[400px] h-[400px] rounded-full bg-[#CBA35C]/[0.06] blur-[100px]" />
+          <div className="absolute top-[40%] left-[60%] w-[300px] h-[300px] rounded-full bg-[#8D6E63]/[0.04] blur-[80px]" />
+        </div>
+
+        <div className="relative w-full max-w-[440px]">
+          <div className="bg-white/80 backdrop-blur-xl rounded-3xl border border-[#E5E7EB]/60 shadow-[0_8px_40px_rgba(0,0,0,0.06)] p-8 sm:p-10 text-center">
+            {/* Logo */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="relative mb-4">
+                <div className="absolute -inset-3 rounded-full bg-gradient-to-br from-[#8D6E63]/20 to-[#CBA35C]/10 blur-xl" />
+                <div className="relative w-24 h-24 rounded-2xl bg-white border border-[#E5E7EB]/60 flex items-center justify-center shadow-sm overflow-hidden">
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#8D6E63] to-[#101820]" />
+                  <img src="/logo-bct2.png" alt="Logo BEM" className="w-14 h-14 object-contain" />
+                </div>
+              </div>
+
+              <h2 className="text-2xl font-bold text-[#101820] tracking-tight">
+                Usuário não encontrado
+              </h2>
+              <p className="text-sm text-[#6B7280] mt-1.5">
+                Parece que você não está logado. Faça login para acessar seu certificado.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <Button
+                onClick={() => router.push("/login")}
+                className="w-full rounded-xl bg-gradient-to-r from-[#8D6E63] to-[#8D6E63]/85 text-white font-semibold text-sm py-3.5 h-auto shadow-md shadow-[#8D6E63]/20 hover:shadow-lg hover:shadow-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+              >
+                Fazer login
+              </Button>
+              <Button
+                onClick={() => router.push("/")}
+                variant="outline"
+                className="w-full rounded-xl bg-white border-[#E5E7EB] text-[#101820] font-medium text-sm py-3.5 h-auto shadow-sm hover:shadow-md hover:border-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+              >
+                Voltar ao início
+              </Button>
+            </div>
           </div>
-
-          <h2 style={{ fontSize: 22, fontWeight: 700, color: "#101820", margin: "0 0 8px 0" }}>
-            Usuário não encontrado
-          </h2>
-          <p style={{ color: "#888", fontSize: 15, lineHeight: "1.6", margin: "0 0 28px 0" }}>
-            Parece que você não está logado. Faça login para acessar seu certificado.
-          </p>
-
-          <button
-            onClick={() => router.push("/login")}
-            style={{ ...botaoPrincipal, width: "100%" }}
-          >
-            Fazer login
-          </button>
-          <button
-            onClick={() => router.push("/")}
-            style={{ ...botaoVoltar, marginLeft: 0, marginTop: 10, width: "100%" }}
-          >
-            Voltar ao início
-          </button>
         </div>
       </div>
     );
@@ -179,209 +209,71 @@ export default function Certificado() {
   //  TELA DE CERTIFICADO
   // -------------------------
   return (
-    <div style={container}>
-      <div id="certificado" style={certBox}>
+    <div className="min-h-screen bg-[#F7F8F9] flex justify-center px-5 py-10">
+      <Head>
+        <title>Certificado | BEM Concreto</title>
+        <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
+      </Head>
+
+      <div id="certificado" className="w-full max-w-[900px] bg-white rounded-3xl border-[3px] border-[#8D6E63] px-8 sm:px-20 py-12 text-center">
         {/* topo */}
-        <div style={faixa} />
+        <div className="w-full h-3 rounded-full bg-[#8D6E63] mb-8" />
 
-        <h1 style={titulo}>BEM CONCRETO</h1>
-        <p style={subtitulo}>CONSULTOR CERTIFICADO</p>
+        <h1 className="text-3xl font-extrabold text-[#101820] tracking-wide">BEM CONCRETO</h1>
+        <p className="text-sm font-semibold text-[#8D6E63] tracking-[4px] mt-1 mb-7">
+          CONSULTOR CERTIFICADO
+        </p>
 
-        <div style={seloBox}>
-          <img src="/selo.png" style={seloImg} alt="Selo" />
+        <div className="w-[150px] h-[150px] rounded-full border-[6px] border-[#8D6E63] mx-auto mb-6 overflow-hidden">
+          <img src="/selo.png" alt="Selo" className="w-full h-full object-cover" />
         </div>
 
-        <p style={{ fontSize: 20 }}>Certificamos que</p>
-        <h2 style={nome}>{user.name}</h2>
+        <p className="text-lg text-[#374151]">Certificamos que</p>
+        <h2 className="text-3xl font-extrabold text-[#101820] mt-1">{user.name}</h2>
 
-        <p style={{ fontSize: 16, marginTop: 8 }}>
+        <p className="text-sm text-[#374151] mt-2">
           CPF: <strong>{user.cpf}</strong>
         </p>
 
-        <p style={texto}>
+        <p className="text-base text-[#374151] leading-relaxed max-w-[600px] mx-auto mt-5 mb-8">
           Concluiu oficialmente todos os <strong>11 módulos</strong> da
           Certificação do Consultor BEM, adquirindo o direito de atuar com
           comissão de <strong>4%</strong>.
         </p>
 
-        <p style={{ marginTop: 20 }}>Emitido em:</p>
-        <strong style={{ fontSize: 18, color: "#8D6E63" }}>
+        <p className="text-sm text-[#374151] mt-5">Emitido em:</p>
+        <strong className="text-lg text-[#8D6E63]">
           {new Date().toLocaleDateString()}
         </strong>
 
-        <div style={{ marginTop: 40 }}>
-          <img src="/assinatura.png" style={{ width: 180 }} />
-          <div style={linhaAssinatura} />
-          <p style={{ fontSize: 14, color: "#8D6E63" }}>
+        <div className="mt-10">
+          <img src="/assinatura.png" alt="Assinatura" className="w-[180px] mx-auto" />
+          <div className="w-[250px] h-px bg-[#8D6E63] mx-auto mb-2" />
+          <p className="text-sm text-[#8D6E63]">
             Bem Concreto Negócios Imobiliário
           </p>
         </div>
 
-        <hr style={{ margin: "50px 0" }} />
+        <hr className="my-12 border-[#E5E7EB]" />
 
-        <button onClick={compartilharCertificado} style={botaoPrincipal}>
-          Compartilhar Certificado
-        </button>
+        <div className="flex flex-col sm:flex-row justify-center gap-3">
+          <Button
+            onClick={compartilharCertificado}
+            className="rounded-xl bg-gradient-to-r from-[#101820] to-[#101820]/85 text-white font-semibold text-sm px-6 py-3.5 h-auto shadow-md shadow-[#101820]/20 hover:shadow-lg transition-all duration-300 active:scale-[0.98]"
+          >
+            <Share2 className="w-4 h-4" />
+            Compartilhar Certificado
+          </Button>
 
-        <button onClick={() => router.push("/painel")} style={botaoVoltar}>
-          Voltar ao Painel
-        </button>
+          <Button
+            onClick={() => router.push("/painel")}
+            variant="outline"
+            className="rounded-xl bg-white border-[#E5E7EB] text-[#101820] font-medium text-sm px-6 py-3.5 h-auto shadow-sm hover:shadow-md hover:border-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+          >
+            Voltar ao Painel
+          </Button>
+        </div>
       </div>
     </div>
   );
 }
-
-/* ---------------------- */
-/* ESTILOS */
-/* ---------------------- */
-const container = {
-  minHeight: "100vh",
-  background: "#F7F8F9",
-  padding: "40px 20px",
-  display: "flex",
-  justifyContent: "center",
-};
-
-const certBox = {
-  width: "100%",
-  maxWidth: "900px",
-  background: "white",
-  padding: "60px 80px",
-  borderRadius: "20px",
-  border: "3px solid #8D6E63",
-  textAlign: "center",
-};
-
-const faixa = {
-  width: "100%",
-  height: "12px",
-  background: "#8D6E63",
-  borderRadius: "10px",
-  marginBottom: "30px",
-};
-
-const titulo = {
-  fontSize: 32,
-  fontWeight: 800,
-  color: "#101820",
-  marginBottom: 0,
-  letterSpacing: 1,
-};
-
-const subtitulo = {
-  fontSize: 14,
-  letterSpacing: 4,
-  marginTop: 0,
-  marginBottom: 30,
-  color: "#8D6E63",
-  fontWeight: 600,
-};
-
-const seloBox = {
-  width: 150,
-  height: 150,
-  borderRadius: "50%",
-  border: "6px solid #8D6E63",
-  margin: "0 auto 25px",
-  overflow: "hidden",
-};
-
-const seloImg = {
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
-};
-
-const nome = {
-  fontSize: 32,
-  fontWeight: 800,
-  margin: 0,
-  color: "#101820",
-};
-
-const texto = {
-  fontSize: 18,
-  lineHeight: 1.6,
-  color: "#333",
-  maxWidth: 600,
-  margin: "0 auto 40px",
-};
-
-const linhaAssinatura = {
-  width: 250,
-  height: 1,
-  background: "#8D6E63",
-  margin: "0 auto 8px",
-};
-
-const botaoPrincipal = {
-  padding: "12px 20px",
-  background: "#101820",
-  color: "white",
-  borderRadius: "10px",
-  border: "none",
-  cursor: "pointer",
-  fontSize: 16,
-};
-
-const botaoVoltar = {
-  padding: "12px 20px",
-  background: "#8D6E63",
-  color: "white",
-  borderRadius: "10px",
-  border: "none",
-  cursor: "pointer",
-  fontSize: 16,
-  marginLeft: 10,
-};
-
-const center = {
-  minHeight: "100vh",
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  background: "#F7F8F9",
-};
-
-const cardErro = {
-  background: "white",
-  padding: "40px 36px",
-  borderRadius: 20,
-  maxWidth: 440,
-  width: "100%",
-  textAlign: "center",
-  border: "1px solid #e0e0e0",
-  boxShadow: "0 4px 20px rgba(0,0,0,0.04)",
-};
-
-const logoContainerErro = {
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: 90,
-  height: 90,
-  borderRadius: 22,
-  background: "#fff",
-  border: "2px solid #e8e4e1",
-  boxShadow: "0 2px 8px rgba(122,93,83,0.08), 0 12px 40px rgba(16,24,32,0.06)",
-  marginBottom: 24,
-  position: "relative",
-  overflow: "hidden",
-};
-
-const logoAccentErro = {
-  position: "absolute",
-  top: 0,
-  left: 0,
-  right: 0,
-  height: 4,
-  background: "linear-gradient(90deg, #8D6E63, #101820)",
-  borderRadius: "22px 22px 0 0",
-};
-
-const logoImgErro = {
-  width: 55,
-  height: 55,
-  objectFit: "contain",
-  marginTop: 2,
-};
