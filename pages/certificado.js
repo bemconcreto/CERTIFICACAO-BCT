@@ -14,9 +14,9 @@ export default function Certificado() {
   //  CARREGA USUÁRIO
   // ---------------------------
   useEffect(() => {
-    const userId = localStorage.getItem("userId");
+    const email = localStorage.getItem("email");
 
-    if (!userId || userId === "undefined" || userId === "null") {
+    if (!email || email === "undefined" || email === "null") {
       setUser(null);
       setLoading(false);
       return;
@@ -24,7 +24,7 @@ export default function Certificado() {
 
     async function carregarUsuario() {
       try {
-        const res = await fetch(`/api/usuario?id=${encodeURIComponent(userId)}`);
+        const res = await fetch(`/api/usuario?email=${encodeURIComponent(email)}`);
         const data = await res.json();
 
         if (data.ok && data.usuario) {
