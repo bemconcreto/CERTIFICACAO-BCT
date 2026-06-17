@@ -115,7 +115,13 @@ export default function Prova() {
       </Head>
 
       <div className="w-full max-w-[900px] flex flex-col gap-6">
-        <div>
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={() => router.push("/painel")}
+            className="self-start flex items-center gap-1.5 text-xs font-semibold text-[#8D6E63] hover:underline"
+          >
+            ← Voltar para o Início
+          </button>
           <h1 className="text-2xl font-bold text-[#101820] tracking-tight">
             Prova — {modulo.title}
           </h1>
