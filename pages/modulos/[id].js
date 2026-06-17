@@ -85,7 +85,7 @@ export default function Modulo() {
         <div className="flex flex-col gap-2">
           <button
             onClick={() => router.push("/painel")}
-            className="self-start flex items-center gap-1.5 text-xs font-semibold text-[#8D6E63] hover:underline"
+            className="self-start flex items-center gap-2 text-sm font-semibold text-[#8D6E63] bg-white border border-[#8D6E63]/40 rounded-xl px-4 py-2 hover:bg-[#8D6E63]/5 hover:border-[#8D6E63] transition-all shadow-sm"
           >
             ← Voltar para o Início
           </button>

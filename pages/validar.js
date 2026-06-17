@@ -37,7 +37,7 @@ export default function Validar() {
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#F7F8F9] p-5">
         <button
           onClick={() => router.push("/")}
-          className="absolute top-5 left-5 flex items-center gap-1.5 text-xs font-semibold text-[#8D6E63] hover:underline z-10"
+          className="absolute top-5 left-5 flex items-center gap-2 text-sm font-semibold text-[#8D6E63] bg-white border border-[#8D6E63]/40 rounded-xl px-4 py-2 hover:bg-[#8D6E63]/5 hover:border-[#8D6E63] transition-all shadow-sm z-10"
         >
           ← Voltar para o Início
         </button>
