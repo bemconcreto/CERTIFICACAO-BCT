@@ -1,10 +1,12 @@
 import { useState } from "react";
+import { useRouter } from "next/router";
 import Head from "next/head";
 import { CheckCircle2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export default function Validar() {
+  const router = useRouter();
   const [code, setCode] = useState("");
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -33,6 +35,13 @@ export default function Validar() {
       </Head>
 
       <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-[#F7F8F9] p-5">
+        <button
+          onClick={() => router.push("/")}
+          className="absolute top-5 left-5 flex items-center gap-1.5 text-xs font-semibold text-[#8D6E63] hover:underline z-10"
+        >
+          ← Voltar para o Início
+        </button>
+
         {/* Background decorations */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden>
           <div className="absolute top-[-120px] left-[-80px] w-[500px] h-[500px] rounded-full bg-[#8D6E63]/[0.07] blur-[120px]" />

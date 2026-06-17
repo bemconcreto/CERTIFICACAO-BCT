@@ -215,7 +215,15 @@ export default function Certificado() {
         <link rel="icon" href="/logo-bct.svg" type="image/svg+xml" />
       </Head>
 
-      <div id="certificado" className="w-full max-w-[900px] bg-white rounded-3xl border-[3px] border-[#8D6E63] px-8 sm:px-20 py-12 text-center">
+      <div className="w-full max-w-[900px] flex flex-col gap-4">
+        <button
+          onClick={() => router.push("/painel")}
+          className="self-start flex items-center gap-1.5 text-xs font-semibold text-[#8D6E63] hover:underline"
+        >
+          ← Voltar para o Início
+        </button>
+
+      <div id="certificado" className="w-full bg-white rounded-3xl border-[3px] border-[#8D6E63] px-8 sm:px-20 py-12 text-center">
         {/* topo */}
         <div className="w-full h-3 rounded-full bg-[#8D6E63] mb-8" />
 
@@ -273,6 +281,7 @@ export default function Certificado() {
             Voltar ao Painel
           </Button>
         </div>
+      </div>
       </div>
     </div>
   );
