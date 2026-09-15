@@ -13,9 +13,24 @@ export const config = {
   },
 };
 
+// ⭐ Este é o webhook considerado oficial (bodyParser desligado + leitura do
+// stream bruto, padrão mais robusto pra receber webhooks). Se no painel da
+// Asaas a URL cadastrada for a de pages/api/pagamento/webhook.js, inverta
+// esse comentário — o importante é que as DUAS fiquem com a mesma proteção.
 export default async function handler(req, res) {
   if (req.method !== "POST") {
-    return res.status(200).end(); // ⚠️ nunca 405
+    return res.status(200).end();
+  }
+
+  // 🔒 A validação do token do webhook agora é OBRIGATÓRIA. Antes, se
+  // ASAAS_WEBHOOK_TOKEN não estivesse configurada na Vercel, o `if`
+  // simplesmente pulava a checagem e QUALQUER POST sem token nenhum
+  // creditava a certificação de qualquer email. Sem a env var configurada,
+  // o endpoint agora recusa tudo (401) em vez de ficar aberto.
+  const webhookToken = process.env.ASAAS_WEBHOOK_TOKEN;
+  const receivedToken = req.headers["asaas-access-token"] || req.query.token;
+  if (!webhookToken || receivedToken !== webhookToken) {
+    return res.status(401).json({ ok: false });
   }
 
   try {
@@ -40,8 +55,38 @@ export default async function handler(req, res) {
     }
 
     if (event === "PAYMENT_RECEIVED" || event === "PAYMENT_CONFIRMED") {
-      // ⭐ Usar externalReference (email do usuário) como identificador principal
-      const email = payment.externalReference;
+      if (!payment.id) {
+        console.log("⚠️ Sem payment.id no evento");
+        return res.status(200).json({ received: true });
+      }
+
+      // 🔒 Nunca confiar cegamente no payload do webhook (pode ser forjado
+      // por quem descobrir/adivinhar a URL) — reconsulta o pagamento direto
+      // na API da Asaas pelo id e só credita se o status lá também
+      // confirmar (mesmo padrão usado nos webhooks do APP-BCT).
+      const API_KEY = process.env.ASAAS_API_KEY;
+      if (!API_KEY) {
+        console.error("❌ ASAAS_API_KEY ausente — não é possível confirmar pagamento");
+        return res.status(200).json({ received: true });
+      }
+
+      const confirmRes = await fetch(
+        `https://www.asaas.com/api/v3/payments/${payment.id}`,
+        { headers: { access_token: API_KEY } }
+      );
+      const paymentConfirmado = await confirmRes.json();
+
+      const statusConfirmado =
+        paymentConfirmado.status === "RECEIVED" || paymentConfirmado.status === "CONFIRMED";
+
+      if (!statusConfirmado) {
+        console.log("⚠️ Status do pagamento na Asaas não confirma o webhook:", paymentConfirmado.status);
+        return res.status(200).json({ received: true });
+      }
+
+      // ⭐ Usar externalReference (email do usuário) confirmado na API,
+      // não o do payload do webhook, como identificador principal
+      const email = paymentConfirmado.externalReference;
 
       if (!email) {
         console.log("⚠️ Sem externalReference no pagamento");

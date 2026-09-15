@@ -29,6 +29,27 @@ export default async function handler(req, res) {
 
     console.log("🔍 Status pagamento Asaas:", payment.id, payment.status);
 
+    // 🔒 IDOR: chargeId e email chegam livres via query string — sem essa
+    // checagem, qualquer pessoa que descobrisse (ou adivinhasse) um
+    // chargeId de outra pessoa podia passar o PRÓPRIO email e marcar
+    // `is_paid_certification=true` pra si mesma sem ter pago nada.
+    // `externalReference` é o email (minúsculo) gravado na criação do
+    // pagamento (ver pages/api/pagamento/criar.js) — só aceitamos a
+    // confirmação se ele bater com o email recebido aqui.
+    const referenciaExterna = (payment.externalReference || "").toLowerCase();
+    const emailConsultado = email.toLowerCase();
+
+    if (referenciaExterna !== emailConsultado) {
+      console.warn(
+        "⚠️ Tentativa de verificar pagamento com email divergente do externalReference:",
+        { chargeId, emailConsultado, referenciaExterna }
+      );
+      return res.status(403).json({
+        ok: false,
+        error: "Este pagamento não pertence a este usuário",
+      });
+    }
+
     const isPaid = payment.status === "RECEIVED" || payment.status === "CONFIRMED";
 
     if (isPaid) {

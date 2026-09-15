@@ -10,13 +10,44 @@ export default function Cadastro() {
 
   // 🔥 PASSO 2 — AQUI
   useEffect(() => {
-    if (session?.user?.email) {
+    async function iniciarSessao() {
+      if (!session?.user?.email) return;
+
       // ✅ salva quem é o usuário
       localStorage.setItem("email", session.user.email);
+
+      // 🔒 salva também o id do usuário (Supabase). Este projeto ainda não
+      // tem sessão real (JWT/cookie) — o id serve como identificador mínimo
+      // enviado junto do e-mail nas chamadas sensíveis (ex: concluir módulo),
+      // para dificultar que alguém complete progresso de outra pessoa só
+      // sabendo o e-mail dela. O callback `session()` em
+      // pages/api/auth/[...nextauth].js já resolve `session.user.id` a
+      // partir do Supabase; usamos como fallback o endpoint /api/usuario
+      // (que também cria o usuário na primeira vez) caso o id ainda não
+      // tenha sido anexado à sessão.
+      let userId = session.user.id;
+
+      if (!userId) {
+        try {
+          const res = await fetch(`/api/usuario?email=${encodeURIComponent(session.user.email)}`);
+          const data = await res.json();
+          if (data?.ok && data?.usuario?.id) {
+            userId = data.usuario.id;
+          }
+        } catch (e) {
+          console.error("Erro ao carregar id do usuário:", e);
+        }
+      }
+
+      if (userId) {
+        localStorage.setItem("userId", userId);
+      }
 
       // ✅ vai para o painel
       router.replace("/painel");
     }
+
+    iniciarSessao();
   }, [session, router]);
 
   if (status === "loading") return null;

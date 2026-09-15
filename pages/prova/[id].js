@@ -76,18 +76,32 @@ export default function Prova() {
   // ======================================================
   // 🔹 Enviar prova
   // ======================================================
-  const enviarProva = () => {
-    let acertos = 0;
+  // 🔒 A correção agora roda no servidor (pages/api/prova/corrigir.js).
+  // Antes, o gabarito (campo `q.a` de lib/modules.js) era comparado aqui no
+  // navegador — como esse mesmo lib/modules.js é importado nesta página
+  // (para exibir as perguntas), a resposta certa de cada pergunta ficava
+  // visível no bundle JS. Mover a comparação pro servidor fecha esse ponto.
+  const enviarProva = async () => {
+    try {
+      const respostas = modulo.questions.map((_, index) => selected[index] ?? null);
 
-    modulo.questions.forEach((q, index) => {
-      if (selected[index] === q.a) acertos++;
-    });
+      const res = await fetch("/api/prova/corrigir", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ moduleId: modulo.id, respostas }),
+      });
 
-    const nota = Math.round(
-      (acertos / modulo.questions.length) * 100
-    );
+      const data = await res.json();
 
-    setScore(nota);
+      if (!res.ok) {
+        throw new Error(data?.error || "Erro ao corrigir prova");
+      }
+
+      setScore(data.nota);
+    } catch (err) {
+      console.error("Erro ao enviar prova:", err);
+      alert("Erro ao corrigir a prova. Tente novamente.");
+    }
   };
 
   // ======================================================
@@ -214,12 +228,23 @@ export default function Prova() {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  onClick={() => router.push(`/modulos/${Number(id) + 1}`)}
-                  className="rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-semibold text-sm px-6 py-3.5 h-auto shadow-md shadow-emerald-600/20 hover:shadow-lg hover:shadow-emerald-600/30 transition-all duration-300 active:scale-[0.98]"
-                >
-                  Ir para o próximo módulo
-                </Button>
+                {score === 100 && Number(id) !== 11 && (
+                  <Button
+                    onClick={() => router.push(`/modulos/${Number(id) + 1}`)}
+                    className="rounded-xl bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-semibold text-sm px-6 py-3.5 h-auto shadow-md shadow-emerald-600/20 hover:shadow-lg hover:shadow-emerald-600/30 transition-all duration-300 active:scale-[0.98]"
+                  >
+                    Ir para o próximo módulo
+                  </Button>
+                )}
+
+                {score !== 100 && (
+                  <Button
+                    onClick={() => { setScore(null); setSelected({}); }}
+                    className="rounded-xl bg-gradient-to-r from-[#8D6E63] to-[#8D6E63]/85 text-white font-semibold text-sm px-6 py-3.5 h-auto shadow-md shadow-[#8D6E63]/20 hover:shadow-lg hover:shadow-[#8D6E63]/30 transition-all duration-300 active:scale-[0.98]"
+                  >
+                    Tentar novamente
+                  </Button>
+                )}
 
                 <Button
                   onClick={() => router.push("/painel")}

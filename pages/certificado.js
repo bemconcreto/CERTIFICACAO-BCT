@@ -28,6 +28,15 @@ export default function Certificado() {
         const data = await res.json();
 
         if (data.ok && data.usuario) {
+          // 🔒 Bloqueia acesso ao certificado se o usuário ainda não foi
+          // certificado (não estudou os 11 módulos / não foi aprovado).
+          // Antes, qualquer cadastro conseguia baixar um certificado
+          // "oficial" com nome/CPF reais só acessando esta URL direto.
+          if (!data.usuario.is_certified) {
+            setLoading(false);
+            router.replace("/painel");
+            return;
+          }
           setUser(data.usuario);
         } else {
           setUser(null);
